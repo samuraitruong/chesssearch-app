@@ -1,0 +1,208 @@
+body,
+h1 {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
+em {
+  background: cyan;
+  font-style: normal;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  min-height: 150px;
+  padding: 0.5rem 1rem;
+  wbackground-image: linear-gradient(to right, #8e43e7, #00aeff);
+  color: #fff;
+  margin-bottom: 1rem;
+  justify-content: space-around;
+  padding-top: 140px;
+  background-image: url("./assets/banner.png");
+  background-size: contain;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.header a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.header-title {
+  font-size: 1.2rem;
+  font-weight: normal;
+}
+
+.header-title::after {
+  content: ' ▸ ';
+  padding: 0 0.5rem;
+}
+
+.header-subtitle {
+  font-size: 1.2rem;
+}
+
+.container {
+  max-width: 1366px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.search-panel {
+  display: flex;
+}
+
+.search-panel__filters {
+  flex: 1;
+}
+
+.search-panel__results {
+  flex: 3;
+}
+
+.searchbox {
+  margin-bottom: 2rem;
+  width: 75%;
+}
+
+.pagination {
+  margin: 2rem auto;
+  text-align: center;
+}
+.search-panel__filters {
+  padding-right: 25px;
+}
+.hit-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%
+}
+.ais-Stats {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+.ais-ClearRefinements{
+  padding: 5px
+}
+
+
+/* Modal Container */
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  z-index: 10000; /* Adjust the z-index as needed */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fff; /* Background color of the modal */
+  padding: 30px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); /* Box shadow for a raised effect */
+  position: relative;
+}
+
+/* Close Button (optional) */
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+/* Centered Text within Modal (optional) */
+.centered-text {
+  text-align: center;
+}
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 20px; /* Adjust the font size as needed */
+  color: #333; /* Close button color */
+}
+
+.close-button:hover {
+  color: #f00; /* Hover color */
+}
+.replay-container{
+  display: flex;
+  
+}
+.move-container{ 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  margin-right: 50px;
+}
+
+.move-container .left {
+  margin-right: 10px; /* Adjust the spacing between the first span and the others */
+}
+.move-container .right {
+  cursor: pointer;
+  margin-left: 10px;
+  padding-left: 5px;
+  flex: 1; /* Distribute remaining space equally between the second and third spans */
+}
+.right.active {
+  background-color: antiquewhite;
+}
+.move-container .right:hover {
+  text-decoration: underline;
+}
+
+.move-container a {
+  text-align: center; /* Center-align the content */
+  background-color: #f0f0f0; /* Background color for links */
+  padding: 2px; /* Padding for links */
+  text-decoration: none; /* Remove default link underline */
+  color: #333; /* Link text color */
+  border: 1px solid #ccc; /* Border for links */
+  display: block;
+  flex: 40%;
+}
+
+/* Style for links on hover (optional) */
+.move-container a:hover {
+  background-color: #ddd; /* Change background color on hover */
+}
+.move-panel{
+  padding: 15px;
+  overflow: auto;
+  width: 150px;
+}
+.replay-header{
+  padding:5px;
+  text-align:center;
+  font-weight: 600;
+}
+.control-bar{
+  width: 500px;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.control-bar button {
+  height: 30px;
+  border: none;
+  margin: 1px;
+  padding:6px 10px;
+}
