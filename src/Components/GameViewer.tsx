@@ -1,8 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
+import { LuChevronFirst, LuDownload, LuChevronLast } from 'react-icons/lu';
+import { BsPlayFill, BsStopFill } from 'react-icons/bs';
+import { GrPrevious, GrNext } from 'react-icons/gr';
 interface IReplayProps {
-  data: any;
+  data: {
+    Game: string;
+    White: string;
+    Black: string;
+    WhiteElo: string;
+    BlackElo: string;
+    Event: string;
+    Site: string;
+    Pgn: string;
+    Moves: string[];
+    LastPosition: string;
+    Year: string;
+    Result: string;
+  };
 }
 function partitionListIntoPairs(arr) {
   return arr.reduce((result, current, index) => {
@@ -48,12 +64,10 @@ export function GameViewer({ data }: IReplayProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   function moveTo(index) {
+    if (index < 0) {
+      return;
+    }
     setCurrentMoveIndex(index);
-    // const item = moveList[index];
-    // //play sound
-    // // https://www.chess.com/forum/view/general/chessboard-sound-files
-
-    // setFen(item.after);
   }
 
   useEffect(() => {
@@ -140,26 +154,26 @@ export function GameViewer({ data }: IReplayProps) {
         <div className="board">
           <Chessboard position={fen} boardWidth={600} />
         </div>
-        <div className="move-panel" style={{ maxHeight: 500 }}>
+        <div className="move-panel" style={{ maxHeight: 575 }}>
           {pairMoves?.map(([white, black], index) => (
             <div className="move-container" key={index}>
               <span className="left">{index + 1}.</span>
-              <span
+              <a
                 className={`right ${
                   index * 2 === currentMoveIndex ? 'active' : ''
                 }`}
                 onClick={() => moveTo(index * 2)}
               >
                 {white?.san}
-              </span>
-              <span
+              </a>
+              <a
                 className={`right ${
                   index * 2 + 1 === currentMoveIndex ? 'active' : ''
                 }`}
                 onClick={() => moveTo(index * 2 + 1)}
               >
                 {black?.san}
-              </span>
+              </a>
             </div>
           ))}
         </div>
@@ -167,19 +181,29 @@ export function GameViewer({ data }: IReplayProps) {
 
       <div>
         <div className="control-bar">
-          <button onClick={() => moveTo(0)}> Move First</button>
+          <button onClick={() => moveTo(0)}>
+            <LuChevronFirst />
+          </button>
           <button onClick={() => moveTo(currentMoveIndex - 1)}>
-            Move Previous
+            <GrPrevious />
           </button>
-          <button onClick={togglePlay}>{`${
-            isPlaying ? 'Stop' : 'Play'
-          }`}</button>
+          <button onClick={togglePlay}>
+            {isPlaying ? (
+              <BsStopFill color="red" />
+            ) : (
+              <BsPlayFill color="green" />
+            )}
+          </button>
           <button onClick={() => moveTo(currentMoveIndex + 1)}>
-            Move Next
+            <GrNext />
           </button>
-          <button onClick={() => moveTo(moveList.length - 1)}>Move Last</button>
+          <button onClick={() => moveTo(moveList.length - 1)}>
+            <LuChevronLast />
+          </button>
 
-          <button onClick={handleDownload}>Download PGN</button>
+          <button onClick={handleDownload}>
+            <LuDownload />
+          </button>
         </div>
       </div>
     </div>

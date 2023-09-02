@@ -1,6 +1,8 @@
 import type { Hit } from 'instantsearch.js';
 import React from 'react';
-import { BiLocationPlus } from 'react-icons/bi';
+import { BiSolidMap, BiCalendarEvent, BiSolidChess } from 'react-icons/bi';
+import { BsFillCalendarDateFill } from 'react-icons/bs';
+import { MdOutlineSportsScore } from 'react-icons/md';
 import { Highlight } from 'react-instantsearch';
 
 type HitProps = {
@@ -13,15 +15,18 @@ export function Hit({ hit, onHitClick }: HitProps) {
     <div className="hit-container" onClick={() => onHitClick(hit)}>
       <div>
         <h2>
+          <BiSolidChess />
           <Highlight attribute="White" hit={hit} /> vs{' '}
           <Highlight attribute="Black" hit={hit} />
-          ( <Highlight attribute="Result" hit={hit} /> )
+          <MdOutlineSportsScore /> <Highlight attribute="Result" hit={hit} />
         </h2>
         <p>
-          <BiLocationPlus />
+          <BiCalendarEvent />
           <Highlight attribute="Event" hit={hit} />
           <br />
+          <BiSolidMap />
           <Highlight attribute="Site" hit={hit} /> <br />
+          <BsFillCalendarDateFill />
           <Highlight attribute="Date" hit={hit} />
         </p>
       </div>

@@ -5,7 +5,7 @@
   "scripts": {
     "build": "parcel build index.html",
     "start": "yarn cp && parcel index.html",
-    "cp": "cp -R src/assets ./dist/assets"
+    "cp": "cp -R src/assets ./dist/assets || true"
   },
   "dependencies": {
     "algoliasearch": "4",
