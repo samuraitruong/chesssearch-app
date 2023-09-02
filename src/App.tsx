@@ -1,23 +1,19 @@
 import React, { useState } from 'react';
 import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter';
-
 import {
   Configure,
   ClearRefinements,
   Stats,
   RefinementList,
-  Highlight,
   Hits,
   InstantSearch,
   Pagination,
   SearchBox,
 } from 'react-instantsearch';
-
-import { Panel } from './Panel';
-
-import type { Hit } from 'instantsearch.js';
-
 import './App.css';
+
+import { Panel } from './Components/Panel';
+import { Hit } from './Components/Hit';
 import { Modal } from './Components/Modal';
 import { GameViewer } from './Components/GameViewer';
 
@@ -173,40 +169,5 @@ export function App() {
         </Modal>
       )}
     </InstantSearch>
-  );
-}
-
-type HitProps = {
-  hit: Hit;
-  onHitClick: (item: any) => void;
-};
-
-function Hit({ hit, onHitClick }: HitProps) {
-  return (
-    <div className="hit-container" onClick={() => onHitClick(hit)}>
-      <div>
-        <h1>
-          <Highlight attribute="Event" hit={hit} />
-        </h1>
-        <p>
-          <Highlight attribute="White" hit={hit} /> vs{' '}
-          <Highlight attribute="Black" hit={hit} />
-          ( <Highlight attribute="Result" hit={hit} /> )
-        </p>
-        <p>
-          <Highlight attribute="Date" hit={hit} />
-        </p>
-        <p>
-          <Highlight attribute="ECO" hit={hit} />
-        </p>
-      </div>
-      <div className="hit-image-container">
-        <img
-          src={`https://chess-board.fly.dev/?fen=${hit.LastPosition}&size=100&frame=false`}
-          alt={hit.Game}
-          className="hit-image"
-        />
-      </div>
-    </div>
   );
 }
