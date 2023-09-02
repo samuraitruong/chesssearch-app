@@ -148,8 +148,9 @@ em {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 150px;
-  margin-right: 50px;
+  width: 100%;
+  border-bottom: dashed 0.2px gray;
+  margin-bottom: 5px;
 }
 
 .move-container .left {
@@ -162,39 +163,34 @@ em {
   flex: 1; /* Distribute remaining space equally between the second and third spans */
 }
 .right.active {
-  background-color: antiquewhite;
+  background-color: #578da6;
+  font-weight: 500;
+  color: #fff;
 }
 .move-container .right:hover {
   text-decoration: underline;
-}
-
-.move-container a {
-  text-align: center; /* Center-align the content */
-  background-color: #f0f0f0; /* Background color for links */
-  padding: 2px; /* Padding for links */
-  text-decoration: none; /* Remove default link underline */
-  color: #333; /* Link text color */
-  border: 1px solid #ccc; /* Border for links */
-  display: block;
-  flex: 40%;
 }
 
 /* Style for links on hover (optional) */
 .move-container a:hover {
   background-color: #ddd; /* Change background color on hover */
 }
+.board{
+  flex: 1
+}
 .move-panel{
   padding: 15px;
   overflow: auto;
-  width: 150px;
+  width: 180px;
 }
 .replay-header{
   padding:5px;
   text-align:center;
   font-weight: 600;
+  margin-bottom: 15px;
 }
 .control-bar{
-  width: 500px;
+  width: 600px;
   margin-top: 15px;
   display: flex;
   align-items: center;
@@ -205,4 +201,6 @@ em {
   border: none;
   margin: 1px;
   padding:6px 10px;
+  cursor: pointer;
+  
 }

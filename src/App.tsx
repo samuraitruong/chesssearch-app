@@ -4,7 +4,6 @@ import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter';
 import {
   Configure,
   ClearRefinements,
-  DynamicWidgets,
   Stats,
   RefinementList,
   Highlight,
@@ -20,7 +19,7 @@ import type { Hit } from 'instantsearch.js';
 
 import './App.css';
 import { Modal } from './Components/Modal';
-import { Replay } from './Components/Replay';
+import { GameViewer } from './Components/GameViewer';
 
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   server: {
@@ -40,7 +39,7 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   //  query_by is required.
   additionalSearchParameters: {
     query_by: 'Game,embedding,White,Black',
-    exclude_fields: 'embedding,Pgn',
+    exclude_fields: 'embedding',
   },
 });
 const searchClient = typesenseInstantsearchAdapter.searchClient;
@@ -48,9 +47,9 @@ const searchClient = typesenseInstantsearchAdapter.searchClient;
 export function App() {
   const [game, setGame] = useState();
   const handleHitClick = (item) => {
-    console.log(item);
     setGame(item);
   };
+
   return (
     <InstantSearch
       searchClient={searchClient}
@@ -170,7 +169,7 @@ export function App() {
       </div>
       {game && (
         <Modal onClose={() => setGame(undefined)}>
-          <Replay data={game}></Replay>
+          <GameViewer data={game}></GameViewer>
         </Modal>
       )}
     </InstantSearch>
