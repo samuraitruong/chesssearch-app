@@ -1,6 +1,10 @@
 import React, { useEffect } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-export function Modal({ children, onClose }: any) {
+interface ModalProps {
+  onClose: () => void;
+  children: React.ReactNode;
+}
+export function Modal({ children, onClose }: ModalProps) {
   useEffect(() => {
     const body = document.querySelector('body');
     if (body) body.style.overflow = 'hidden';
@@ -14,9 +18,12 @@ export function Modal({ children, onClose }: any) {
     onClose();
   };
   return (
-    <div className="modal-container">
-      <div className="modal-content">
-        <a className="close-button" onClick={handleClose}>
+    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="relative p-7 rounded-lg shadow-lg bg-white">
+        <a
+          className="close-button absolute top-3 right-3 text-lg cursor-pointer hover:text-red-500"
+          onClick={handleClose}
+        >
           <AiOutlineClose />
         </a>
 

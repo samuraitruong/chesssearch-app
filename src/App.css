@@ -14,18 +14,9 @@ em {
   font-style: normal;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  min-height: 150px;
-  padding: 0.5rem 1rem;
-  color: #fff;
-  margin-bottom: 1rem;
-  justify-content: space-around;
-  padding-top: 140px;
+.header-bg {
   background-image: url("./assets/banner.png");
   background-size: contain;
-  background-color: rgba(255, 255, 255, 0.5);
 }
 
 
@@ -37,114 +28,6 @@ em {
   padding: 5px
 }
 
-
-/* Modal Container */
-.modal-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  z-index: 10000; /* Adjust the z-index as needed */
-}
-
-/* Modal Content */
-.modal-content {
-  background-color: #fff; /* Background color of the modal */
-  padding: 30px;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3); /* Box shadow for a raised effect */
-  position: relative;
-}
-
-/* Close Button (optional) */
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-}
-
-/* Centered Text within Modal (optional) */
-.centered-text {
-  text-align: center;
-}
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  font-size: 20px; /* Adjust the font size as needed */
-  color: #333; /* Close button color */
-}
-
-.close-button:hover {
-  color: #f00; /* Hover color */
-}
-
-.move-container{ 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  border-bottom: dashed 0.2px gray;
-  margin-bottom: 5px;
-}
-
-.move-container .left {
-  margin-right: 10px; /* Adjust the spacing between the first span and the others */
-}
-.move-container .right {
-  cursor: pointer;
-  margin-left: 10px;
-  padding-left: 5px;
-  flex: 1; /* Distribute remaining space equally between the second and third spans */
-}
-.right.active {
-  background-color: #578da6;
-  font-weight: 500;
-  color: #fff;
-}
-.move-container .right:hover {
-  text-decoration: underline;
-}
-
-/* Style for links on hover (optional) */
-.move-container a:hover {
-  background-color: #ddd; /* Change background color on hover */
-}
-.board{
-  flex: 1
-}
-.move-panel{
-  padding: 15px;
-  overflow: auto;
-  width: 180px;
-}
-.replay-header{
-  padding:5px;
-  text-align:center;
-  font-weight: 600;
-  margin-bottom: 15px;
-}
-.control-bar{
-  width: 600px;
-  margin-top: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.control-bar button {
-  height: 30px;
-  border: none;
-  margin: 1px;
-  padding:8px 20px;
-  cursor: pointer;
-}
 .ais-Hits-item:hover {
   background-color: #80adc2;
   cursor: pointer;

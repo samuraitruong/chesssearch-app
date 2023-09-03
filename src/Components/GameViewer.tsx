@@ -6,6 +6,7 @@ import { BsPlayFill, BsStopFill } from 'react-icons/bs';
 import { GrPrevious, GrNext } from 'react-icons/gr';
 import { PiSpeakerHigh, PiSpeakerX } from 'react-icons/pi';
 import { useStockfish } from '../Hooks/useStockfish';
+import useViewport from '../Hooks/useViewport';
 interface IReplayProps {
   data: {
     Game: string;
@@ -60,6 +61,7 @@ const playSound = (move) => {
 export function GameViewer({ data }: IReplayProps) {
   const [moveList, setMoveList] = useState<any[]>([]);
   const { findBestMove } = useStockfish();
+  const { width, height } = useViewport();
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
   );
@@ -157,29 +159,41 @@ export function GameViewer({ data }: IReplayProps) {
   const pairMoves = partitionListIntoPairs(moveList);
   return (
     <div>
-      <div className="replay-header">
+      <div className="pt-3 text-center font-semibold mb-3">
         {data.White} ({data.WhiteElo}) vs {data.Black} ({data.BlackElo}) -{' '}
         {data.Result} in {data.Event} - {data.Year}
       </div>
       <div className="flex">
-        <div className="board">
-          <Chessboard position={fen} boardWidth={600} />
+        <div className="flex">
+          <Chessboard position={fen} boardWidth={height - 200} />
         </div>
-        <div className="move-panel" style={{ maxHeight: 575 }}>
+        <div
+          className="ml-3 flex flex-col pl-2 w-[220px] overflow-y-scroll overflow-x-hidden"
+          style={{ maxHeight: height - 200 }}
+        >
           {pairMoves?.map(([white, black], index) => (
-            <div className="move-container" key={index}>
-              <span className="left">{index + 1}.</span>
+            <div
+              className="flex  w-[220px] items-center border-b border-dashed border-gray-300 mb-1"
+              key={index}
+            >
+              <span className="text-right w-[25px] block mr-2">
+                {index + 1}.
+              </span>
               <a
-                className={`right ${
-                  index * 2 === currentMoveIndex ? 'active' : ''
+                className={`cursor-pointer  pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
+                  index * 2 === currentMoveIndex
+                    ? 'bg-blue-500 font-medium text-white'
+                    : ''
                 }`}
                 onClick={() => moveTo(index * 2)}
               >
                 {white?.san}
               </a>
               <a
-                className={`right ${
-                  index * 2 + 1 === currentMoveIndex ? 'active' : ''
+                className={`cursor-pointer pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
+                  index * 2 + 1 === currentMoveIndex
+                    ? 'bg-blue-500 font-medium text-white'
+                    : ''
                 }`}
                 onClick={() => moveTo(index * 2 + 1)}
               >
@@ -191,34 +205,40 @@ export function GameViewer({ data }: IReplayProps) {
       </div>
 
       <div>
-        <div className="control-bar">
-          <button onClick={() => moveTo(0)}>
+        <div className="flex w-[550px] justify-center mt-3 items-center">
+          <button onClick={() => moveTo(0)} className="p-3 cursor-pointer">
             <LuChevronFirst />
           </button>
-          <button onClick={() => moveTo(currentMoveIndex - 1)}>
+          <button
+            onClick={() => moveTo(currentMoveIndex - 1)}
+            className="p-3 cursor-pointer"
+          >
             <GrPrevious />
           </button>
-          <button onClick={togglePlay}>
+          <button onClick={togglePlay} className="p-3 cursor-pointer">
             {isPlaying ? (
               <BsStopFill color="red" />
             ) : (
               <BsPlayFill color="green" />
             )}
           </button>
-          <button onClick={() => moveTo(currentMoveIndex + 1)}>
+          <button
+            onClick={() => moveTo(currentMoveIndex + 1)}
+            className="p-3 cursor-pointer"
+          >
             <GrNext />
           </button>
           <button onClick={() => moveTo(moveList.length - 1)}>
             <LuChevronLast />
           </button>
-          <button onClick={toggleSpeaker}>
+          <button onClick={toggleSpeaker} className="ml-10 p-3 cursor-pointer">
             {isMute ? (
               <PiSpeakerX color="red" />
             ) : (
               <PiSpeakerHigh color="green" />
             )}
           </button>
-          <button onClick={handleDownload}>
+          <button onClick={handleDownload} className="p-3 cursor-pointer">
             <LuDownload />
           </button>
         </div>

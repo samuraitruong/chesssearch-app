@@ -30,11 +30,8 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
         protocol: 'http',
       },
     ],
-    cacheSearchResultsForSeconds: 2 * 60, // Cache search results from server. Defaults to 2 minutes. Set to 0 to disable caching.
+    cacheSearchResultsForSeconds: 1 * 60, // Cache search results from server. Defaults to 2 minutes. Set to 0 to disable caching.
   },
-  // The following parameters are directly passed to Typesense's search API endpoint.
-  //  So you can pass any parameters supported by the search endpoint below.
-  //  query_by is required.
   additionalSearchParameters: {
     query_by: 'Game,embedding,White,Black',
     exclude_fields: 'embedding',
@@ -62,8 +59,11 @@ export function App() {
       insights={false}
     >
       <Configure hitsPerPage={20} />
-      <header className="header">
-        <SearchBox placeholder="" className="w-3/4 mb-8" />
+      <header className="header-bg flex justify-center items-center min-height-[170px] p-2 bg-opacity-50 bg-white bg-contain pt-[150px]">
+        <SearchBox
+          placeholder="Search keywork (ie: Magnus vs Hiraku)"
+          className="w-3/4 mb-8"
+        />
       </header>
 
       <div className="flex w-full p-4">
@@ -181,7 +181,7 @@ export function App() {
               )}
             />
           )}
-          <div className="mt-3 flex align-middle w-full">
+          <div className="flex align-middle w-full justify-center pt-5 ">
             <Pagination />
           </div>
         </div>
