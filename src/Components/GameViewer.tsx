@@ -4,6 +4,8 @@ import { Chess } from 'chess.js';
 import { LuChevronFirst, LuDownload, LuChevronLast } from 'react-icons/lu';
 import { BsPlayFill, BsStopFill } from 'react-icons/bs';
 import { GrPrevious, GrNext } from 'react-icons/gr';
+import { PiSpeakerHigh, PiSpeakerX } from 'react-icons/pi';
+import { useStockfish } from '../Hooks/useStockfish';
 interface IReplayProps {
   data: {
     Game: string;
@@ -57,11 +59,13 @@ const playSound = (move) => {
 };
 export function GameViewer({ data }: IReplayProps) {
   const [moveList, setMoveList] = useState<any[]>([]);
+  const { findBestMove } = useStockfish();
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
   );
   const [fen, setFen] = useState(data.LastPosition);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMute, setMute] = useState(false);
 
   function moveTo(index) {
     if (index < 0) {
@@ -73,7 +77,11 @@ export function GameViewer({ data }: IReplayProps) {
   useEffect(() => {
     const item = moveList[currentMoveIndex];
     if (item) {
-      playSound(item);
+      if (!isMute) {
+        playSound(item);
+      }
+      console.log('findBestMove call');
+      // findBestMove(item.before);
       setFen(item.after);
     }
     if (currentMoveIndex >= moveList.length) {
@@ -134,6 +142,9 @@ export function GameViewer({ data }: IReplayProps) {
     }
     setIsPlaying(!isPlaying);
   };
+  const toggleSpeaker = () => {
+    setMute(!isMute);
+  };
   const handleDownload = () => {
     const element = document.createElement('a');
     const file = new Blob([data.Pgn], { type: 'text/plain' });
@@ -150,7 +161,7 @@ export function GameViewer({ data }: IReplayProps) {
         {data.White} ({data.WhiteElo}) vs {data.Black} ({data.BlackElo}) -{' '}
         {data.Result} in {data.Event} - {data.Year}
       </div>
-      <div className="replay-container">
+      <div className="flex">
         <div className="board">
           <Chessboard position={fen} boardWidth={600} />
         </div>
@@ -200,7 +211,13 @@ export function GameViewer({ data }: IReplayProps) {
           <button onClick={() => moveTo(moveList.length - 1)}>
             <LuChevronLast />
           </button>
-
+          <button onClick={toggleSpeaker}>
+            {isMute ? (
+              <PiSpeakerX color="red" />
+            ) : (
+              <PiSpeakerHigh color="green" />
+            )}
+          </button>
           <button onClick={handleDownload}>
             <LuDownload />
           </button>

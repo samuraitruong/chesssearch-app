@@ -1,6 +1,6 @@
 # chessapp
 
-_This project was generated with [create-instantsearch-app](https://github.com/algolia/instantsearch/tree/master/packages/create-instantsearch-app) by [Algolia](https://algolia.com)._
+This project is bootstrap using instantsearch but was modified to work with typesense server
 
 ## Get started
 

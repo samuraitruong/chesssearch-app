@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-
+import { AiOutlineClose } from 'react-icons/ai';
 export function Modal({ children, onClose }: any) {
   useEffect(() => {
     const body = document.querySelector('body');
@@ -16,9 +16,9 @@ export function Modal({ children, onClose }: any) {
   return (
     <div className="modal-container">
       <div className="modal-content">
-        <span className="close-button" onClick={handleClose}>
-          &times;
-        </span>
+        <a className="close-button" onClick={handleClose}>
+          <AiOutlineClose />
+        </a>
 
         {children}
       </div>

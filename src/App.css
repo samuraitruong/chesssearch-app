@@ -19,7 +19,6 @@ em {
   align-items: center;
   min-height: 150px;
   padding: 0.5rem 1rem;
-  wbackground-image: linear-gradient(to right, #8e43e7, #00aeff);
   color: #fff;
   margin-bottom: 1rem;
   justify-content: space-around;
@@ -29,61 +28,7 @@ em {
   background-color: rgba(255, 255, 255, 0.5);
 }
 
-.header a {
-  color: #fff;
-  text-decoration: none;
-}
 
-.header-title {
-  font-size: 1.2rem;
-  font-weight: normal;
-}
-
-.header-title::after {
-  content: ' ▸ ';
-  padding: 0 0.5rem;
-}
-
-.header-subtitle {
-  font-size: 1.2rem;
-}
-
-.container {
-  max-width: 1366px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-.search-panel {
-  display: flex;
-}
-
-.search-panel__filters {
-  flex: 1;
-}
-
-.search-panel__results {
-  flex: 3;
-}
-
-.searchbox {
-  margin-bottom: 2rem;
-  width: 75%;
-}
-
-.pagination {
-  margin: 2rem auto;
-  text-align: center;
-}
-.search-panel__filters {
-  padding-right: 25px;
-}
-.hit-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 100%
-}
 .ais-Stats {
   margin-top: 5px;
   margin-bottom: 10px;
@@ -140,10 +85,7 @@ em {
 .close-button:hover {
   color: #f00; /* Hover color */
 }
-.replay-container{
-  display: flex;
-  
-}
+
 .move-container{ 
   display: flex;
   justify-content: center;
@@ -206,4 +148,8 @@ em {
 .ais-Hits-item:hover {
   background-color: #80adc2;
   cursor: pointer;
+}
+.hits_card .ais-Hits-item{
+  width: 33.33%;
+  float: left;
 }

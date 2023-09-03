@@ -21,3 +21,4 @@ dist
 *.njsproj
 *.sln
 *.sw?
+.env

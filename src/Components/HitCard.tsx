@@ -10,18 +10,25 @@ type HitProps = {
   onHitClick: (item: any) => void;
 };
 
-export function Hit({ hit, onHitClick }: HitProps) {
+export function HitCard({ hit, onHitClick }: HitProps) {
   return (
-    <div className="flex w-full" onClick={() => onHitClick(hit)}>
-      <div className="w-3/4">
+    <div className="flex flex-col" onClick={() => onHitClick(hit)}>
+      <div className=" flex items-center w-full align-middle justify-around mb-2">
+        <img
+          src={`https://chess-board.fly.dev/?fen=${hit.LastPosition}&size=120&frame=false`}
+          alt={hit.Game}
+        />
+      </div>
+
+      <div className="w-full">
         <h2>
           <BiSolidChess className="inline-block mr-1" />
           <Highlight attribute="White" hit={hit} /> vs{' '}
           <Highlight attribute="Black" hit={hit} />
-          <MdOutlineSportsScore className="inline-block mr-0 ml-5" />{' '}
-          <Highlight attribute="Result" hit={hit} />
         </h2>
         <p>
+          <MdOutlineSportsScore className="inline-block mr-1" />{' '}
+          <Highlight attribute="Result" hit={hit} /> <br />
           <BiCalendarEvent className="inline-block mr-1" />
           <Highlight attribute="Event" hit={hit} />
           <br />
@@ -30,12 +37,6 @@ export function Hit({ hit, onHitClick }: HitProps) {
           <BsFillCalendarDateFill className="inline-block mr-1" />
           <Highlight attribute="Date" hit={hit} />
         </p>
-      </div>
-      <div className="w-1/4 flex flex-col items-end">
-        <img
-          src={`https://chess-board.fly.dev/?fen=${hit.LastPosition}&size=100&frame=false`}
-          alt={hit.Game}
-        />
       </div>
     </div>
   );
