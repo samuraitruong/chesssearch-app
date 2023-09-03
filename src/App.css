@@ -36,3 +36,6 @@ em {
   width: 33.33%;
   float: left;
 }
+.ais-Hits-table .ais-Hits-item{
+  padding:5px 10px;
+}

@@ -22,3 +22,4 @@ dist
 *.sln
 *.sw?
 .env
+vite-app/

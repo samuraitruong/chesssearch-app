@@ -1,6 +1,5 @@
 import React from 'react';
-import { CgDisplayGrid, CgList } from 'react-icons/cg';
-import { GrTable } from 'react-icons/gr';
+import { CgDisplayGrid, CgList, CgMenuCheese } from 'react-icons/cg';
 
 interface IDisplaySelectorProps {
   mode: 'list' | 'card' | 'table';
@@ -21,7 +20,7 @@ export function DisplaySelector({ onChange, mode }: IDisplaySelectorProps) {
         color={mode === 'list' ? 'green' : ''}
       />
 
-      <GrTable
+      <CgMenuCheese
         onClick={() => onChange('table')}
         className="cursor-pointer text-lg"
         color={mode === 'table' ? 'green' : ''}

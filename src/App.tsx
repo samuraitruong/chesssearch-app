@@ -18,6 +18,7 @@ import { Hit } from './Components/Hit';
 import { Modal } from './Components/Modal';
 import { GameViewer } from './Components/GameViewer';
 import { HitCard } from './Components/HitCard';
+import { TableHit } from './Components/TableHit';
 
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   server: {
@@ -48,7 +49,6 @@ export function App() {
   };
   const indexName = process.env.INDEX_NAME || 'chessgames';
   const handleModeChange = (type) => {
-    console.log('tyupe', type);
     setDisplayMode(type);
   };
   return (
@@ -163,20 +163,31 @@ export function App() {
               <DisplaySelector onChange={handleModeChange} mode={displayMode} />
             </div>
           </div>
-          {displayMode === 'card' ? (
+          {displayMode === 'card' && (
             <Hits
               className="w-full hits_card"
               hitComponent={(props) => (
                 <HitCard {...props} onHitClick={handleHitClick} />
               )}
             />
-          ) : (
+          )}
+          {displayMode === 'list' && (
             <Hits
               hitComponent={(props) => (
                 <Hit {...props} onHitClick={handleHitClick} />
               )}
             />
           )}
+
+          {displayMode === 'table' && (
+            <Hits
+              className="ais-Hits-table"
+              hitComponent={(props) => (
+                <TableHit {...props} onHitClick={handleHitClick} />
+              )}
+            />
+          )}
+
           <div className="flex align-middle w-full justify-center pt-5 ">
             <Pagination />
           </div>
