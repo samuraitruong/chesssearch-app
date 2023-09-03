@@ -51,7 +51,6 @@ export function App() {
     console.log('tyupe', type);
     setDisplayMode(type);
   };
-  console.log('display', displayMode);
   return (
     <InstantSearch
       searchClient={searchClient}
@@ -68,9 +67,7 @@ export function App() {
 
       <div className="flex w-full p-4">
         <div className="w-3/12 pr-2">
-          <h2>Filters</h2>
-
-          <div className="clear-filters" data-layout="desktop">
+          <div className="" data-layout="desktop">
             <ClearRefinements
               translations={{
                 reset: (
@@ -97,7 +94,6 @@ export function App() {
             />
           </div>
 
-          <div className="clear-filters" data-layout="mobile"></div>
           <Panel header="Year">
             <RefinementList
               attribute="Year"

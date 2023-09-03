@@ -1,9 +1,10 @@
 import React from 'react';
 import { CgDisplayGrid, CgList } from 'react-icons/cg';
+import { GrTable } from 'react-icons/gr';
 
 interface IDisplaySelectorProps {
-  mode: 'list' | 'card';
-  onChange: (type: 'list' | 'card') => void;
+  mode: 'list' | 'card' | 'table';
+  onChange: (type: 'list' | 'card' | 'table') => void;
 }
 
 export function DisplaySelector({ onChange, mode }: IDisplaySelectorProps) {
@@ -18,6 +19,12 @@ export function DisplaySelector({ onChange, mode }: IDisplaySelectorProps) {
         onClick={() => onChange('list')}
         className="cursor-pointer text-xl"
         color={mode === 'list' ? 'green' : ''}
+      />
+
+      <GrTable
+        onClick={() => onChange('table')}
+        className="cursor-pointer text-lg"
+        color={mode === 'table' ? 'green' : ''}
       />
     </>
   );
