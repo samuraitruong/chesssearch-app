@@ -12,7 +12,6 @@ import {
 } from 'react-instantsearch';
 import './App.css';
 import { DisplaySelector } from './Components/DisplaySelector';
-
 import { Panel } from './Components/Panel';
 import { Hit } from './Components/Hit';
 import { Modal } from './Components/Modal';
@@ -22,11 +21,11 @@ import { TableHit } from './Components/TableHit';
 
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   server: {
-    apiKey: process.env.TYPESENSE_API || 'xyz', // Be sure to use an API key that only allows search operations
+    apiKey: import.meta.env.VITE_TYPESENSE_API || 'xyz', // Be sure to use an API key that only allows search operations
     nodes: [
       {
-        host: process.env.TYPESENSE_HOST || 'localhost',
-        port: parseInt(process.env.TYPESENSE_PORT || '8108'),
+        host: import.meta.env.VITE_TYPESENSE_HOST || 'localhost',
+        port: parseInt(import.meta.env.VITE_TYPESENSE_PORT || '8108'),
         path: '', // Optional. Example: If you have your typesense mounted in localhost:8108/typesense, path should be equal to '/typesense'
         protocol: 'http',
       },
@@ -40,15 +39,15 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
 });
 const searchClient = typesenseInstantsearchAdapter.searchClient;
 
-export function App() {
+export default function App() {
   const [game, setGame] = useState();
   const [displayMode, setDisplayMode] = useState<any>('card');
 
-  const handleHitClick = (item) => {
+  const handleHitClick = (item: any) => {
     setGame(item);
   };
-  const indexName = process.env.INDEX_NAME || 'chessgames';
-  const handleModeChange = (type) => {
+  const indexName = import.meta.env.VITE_INDEX_NAME || 'chessgames';
+  const handleModeChange = (type: any) => {
     setDisplayMode(type);
   };
   return (
