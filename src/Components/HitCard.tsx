@@ -4,6 +4,7 @@ import { BiSolidMap, BiCalendarEvent, BiSolidChess } from 'react-icons/bi';
 import { BsFillCalendarDateFill } from 'react-icons/bs';
 import { MdOutlineSportsScore } from 'react-icons/md';
 import { Highlight } from 'react-instantsearch';
+import { MiniBoard } from './MiniBoard';
 
 type HitProps = {
   hit: Hit;
@@ -13,11 +14,10 @@ type HitProps = {
 export function HitCard({ hit, onHitClick }: HitProps) {
   return (
     <div className="flex flex-col w-full" onClick={() => onHitClick(hit)}>
-      <div className=" flex items-center w-full align-middle justify-around mb-2">
-        <img
-          src={`https://chess-board.fly.dev/?fen=${hit.LastPosition}&size=120&frame=false`}
-          alt={hit.Game}
-        />
+      <div className=" flex items-center w-full] align-middle justify-around mb-2">
+        <div className="w-[100px]">
+          <MiniBoard position={hit.LastPosition} />
+        </div>
       </div>
 
       <div className="w-full">
