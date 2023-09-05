@@ -14,7 +14,6 @@ export function Modal({ children, onClose }: ModalProps) {
     };
   }, []);
   const handleClose = () => {
-    // Call the onClose function when the modal is closed
     onClose();
   };
   return (

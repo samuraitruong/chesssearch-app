@@ -66,7 +66,7 @@ export function App() {
       </header>
 
       <div className="flex w-full p-4">
-        <div className="w-3/12 pr-2">
+        <div className="w-3/12 pr-2 lg:w-2/12">
           <div className="" data-layout="desktop">
             <ClearRefinements
               translations={{
@@ -153,10 +153,10 @@ export function App() {
           </Panel>
         </div>
 
-        <div className="w-9/12">
+        <div className="w-9/12 lg:w-10/12">
           <div className="flex w-full justify-between">
             <div className="w-1/2">
-              <Stats className="stats" />
+              <Stats className="mb-3" />
             </div>
 
             <div className="w-1/2 justify-end flex">

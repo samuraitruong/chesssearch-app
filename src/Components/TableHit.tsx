@@ -1,8 +1,5 @@
 import type { Hit } from 'instantsearch.js';
 import React from 'react';
-import { BiSolidMap, BiCalendarEvent, BiSolidChess } from 'react-icons/bi';
-import { BsFillCalendarDateFill } from 'react-icons/bs';
-import { MdOutlineSportsScore } from 'react-icons/md';
 import { Highlight } from 'react-instantsearch';
 
 type HitProps = {

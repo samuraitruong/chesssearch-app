@@ -11,6 +11,7 @@ type HitProps = {
 };
 
 export function Hit({ hit, onHitClick }: HitProps) {
+  
   return (
     <div className="flex w-full" onClick={() => onHitClick(hit)}>
       <div className="w-3/4">

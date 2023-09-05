@@ -12,7 +12,7 @@ type HitProps = {
 
 export function HitCard({ hit, onHitClick }: HitProps) {
   return (
-    <div className="flex flex-col" onClick={() => onHitClick(hit)}>
+    <div className="flex flex-col w-full" onClick={() => onHitClick(hit)}>
       <div className=" flex items-center w-full align-middle justify-around mb-2">
         <img
           src={`https://chess-board.fly.dev/?fen=${hit.LastPosition}&size=120&frame=false`}
@@ -23,7 +23,10 @@ export function HitCard({ hit, onHitClick }: HitProps) {
       <div className="w-full">
         <h2>
           <BiSolidChess className="inline-block mr-1" />
-          <Highlight attribute="White" hit={hit} /> vs{' '}
+          <Highlight attribute="White" hit={hit} />
+        </h2>
+        <h2>
+          <BiSolidChess className="inline-block mr-1" />
           <Highlight attribute="Black" hit={hit} />
         </h2>
         <p>

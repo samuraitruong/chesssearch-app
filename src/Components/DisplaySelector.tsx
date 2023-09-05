@@ -12,11 +12,11 @@ export function DisplaySelector({ onChange, mode }: IDisplaySelectorProps) {
       <CgDisplayGrid
         onClick={() => onChange('card')}
         color={mode === 'card' ? 'green' : ''}
-        className="cursor-pointer text-xl"
+        className="cursor-pointer text-xl mr-2"
       />
       <CgList
         onClick={() => onChange('list')}
-        className="cursor-pointer text-xl"
+        className="cursor-pointer text-xl  mr-2 "
         color={mode === 'list' ? 'green' : ''}
       />
 

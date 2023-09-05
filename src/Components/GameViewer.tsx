@@ -21,6 +21,7 @@ interface IReplayProps {
     LastPosition: string;
     Year: string;
     Result: string;
+    ECO: string;
   };
 }
 function partitionListIntoPairs(arr) {
@@ -159,13 +160,55 @@ export function GameViewer({ data }: IReplayProps) {
   const pairMoves = partitionListIntoPairs(moveList);
   return (
     <div>
-      <div className="pt-3 text-center font-semibold mb-3">
+      <div className="pt-3 text-center font-semibold">
         {data.White} ({data.WhiteElo}) vs {data.Black} ({data.BlackElo}) -{' '}
         {data.Result} in {data.Event} - {data.Year}
       </div>
+      <div className="pt-1 text-center mb-3">{data.ECO}</div>
+
       <div className="flex">
-        <div className="flex">
+        <div className="flex flex-col">
           <Chessboard position={fen} boardWidth={height - 200} />
+          <div className="flex w-full justify-center mt-3 items-center">
+            <button onClick={() => moveTo(0)} className="p-3 cursor-pointer">
+              <LuChevronFirst />
+            </button>
+            <button
+              onClick={() => moveTo(currentMoveIndex - 1)}
+              className="p-3 cursor-pointer"
+            >
+              <GrPrevious />
+            </button>
+            <button onClick={togglePlay} className="p-3 cursor-pointer">
+              {isPlaying ? (
+                <BsStopFill color="red" />
+              ) : (
+                <BsPlayFill color="green" />
+              )}
+            </button>
+            <button
+              onClick={() => moveTo(currentMoveIndex + 1)}
+              className="p-3 cursor-pointer"
+            >
+              <GrNext />
+            </button>
+            <button onClick={() => moveTo(moveList.length - 1)}>
+              <LuChevronLast />
+            </button>
+            <button
+              onClick={toggleSpeaker}
+              className="ml-10 p-3 cursor-pointer"
+            >
+              {isMute ? (
+                <PiSpeakerX color="red" />
+              ) : (
+                <PiSpeakerHigh color="green" />
+              )}
+            </button>
+            <button onClick={handleDownload} className="p-3 cursor-pointer">
+              <LuDownload />
+            </button>
+          </div>
         </div>
         <div
           className="ml-3 flex flex-col pl-2 w-[220px] overflow-y-scroll overflow-x-hidden"
@@ -173,7 +216,7 @@ export function GameViewer({ data }: IReplayProps) {
         >
           {pairMoves?.map(([white, black], index) => (
             <div
-              className="flex  w-[220px] items-center border-b border-dashed border-gray-300 mb-1"
+              className="flex w-[220px] items-center border-b border-dashed border-gray-300 mb-1"
               key={index}
             >
               <span className="text-right w-[25px] block mr-2">
@@ -204,45 +247,7 @@ export function GameViewer({ data }: IReplayProps) {
         </div>
       </div>
 
-      <div>
-        <div className="flex w-[550px] justify-center mt-3 items-center">
-          <button onClick={() => moveTo(0)} className="p-3 cursor-pointer">
-            <LuChevronFirst />
-          </button>
-          <button
-            onClick={() => moveTo(currentMoveIndex - 1)}
-            className="p-3 cursor-pointer"
-          >
-            <GrPrevious />
-          </button>
-          <button onClick={togglePlay} className="p-3 cursor-pointer">
-            {isPlaying ? (
-              <BsStopFill color="red" />
-            ) : (
-              <BsPlayFill color="green" />
-            )}
-          </button>
-          <button
-            onClick={() => moveTo(currentMoveIndex + 1)}
-            className="p-3 cursor-pointer"
-          >
-            <GrNext />
-          </button>
-          <button onClick={() => moveTo(moveList.length - 1)}>
-            <LuChevronLast />
-          </button>
-          <button onClick={toggleSpeaker} className="ml-10 p-3 cursor-pointer">
-            {isMute ? (
-              <PiSpeakerX color="red" />
-            ) : (
-              <PiSpeakerHigh color="green" />
-            )}
-          </button>
-          <button onClick={handleDownload} className="p-3 cursor-pointer">
-            <LuDownload />
-          </button>
-        </div>
-      </div>
+      <div></div>
     </div>
   );
 }

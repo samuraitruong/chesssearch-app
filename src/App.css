@@ -20,10 +20,6 @@ em {
 }
 
 
-.ais-Stats {
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
 .ais-ClearRefinements{
   padding: 5px
 }
@@ -38,4 +34,15 @@ em {
 }
 .ais-Hits-table .ais-Hits-item{
   padding:5px 10px;
+}
+
+@media (min-width: 1500px) {
+  .hits_card .ais-Hits-item {
+    width: 20%;
+  }
+}
+@media (min-width: 2000px) {
+  .hits_card .ais-Hits-item {
+    width: 14%
+  }
 }
