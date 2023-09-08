@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Chessboard } from 'react-chessboard';
-import { Chess } from 'chess.js';
+import { Chess, Move } from 'chess.js';
 import { LuChevronFirst, LuDownload, LuChevronLast } from 'react-icons/lu';
 import { BsPlayFill, BsStopFill } from 'react-icons/bs';
 import { GrPrevious, GrNext } from 'react-icons/gr';
@@ -24,7 +24,7 @@ interface IReplayProps {
     ECO: string;
   };
 }
-function partitionListIntoPairs(arr) {
+function partitionListIntoPairs(arr: any[]) {
   return arr.reduce((result, current, index) => {
     if (index % 2 === 0) {
       result.push([current]);
@@ -35,7 +35,7 @@ function partitionListIntoPairs(arr) {
   }, []);
 }
 
-const playSound = (move) => {
+const playSound = (move: Move) => {
   let audioType = move.color === 'w' ? 'move-self' : 'move-opponent';
   if (move.san.includes('x')) {
     audioType = 'capture';
@@ -60,9 +60,12 @@ const playSound = (move) => {
   new Audio(`${fileCDN}/${audioType}.mp3`).play();
 };
 export function GameViewer({ data }: IReplayProps) {
-  const [moveList, setMoveList] = useState<any[]>([]);
-  const { findBestMove } = useStockfish();
-  const { width, height } = useViewport();
+  const blackElo = useRef<HTMLDivElement>();
+  const whiteElo = useRef<HTMLDivElement>();
+  const [eloText, setEloText] = useState('0.0');
+  const [moveList, setMoveList] = useState<Move[]>([]);
+  const { engine, gameData } = useStockfish();
+  const { height } = useViewport();
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
   );
@@ -70,12 +73,15 @@ export function GameViewer({ data }: IReplayProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMute, setMute] = useState(false);
 
-  function moveTo(index) {
+  function moveTo(index: number) {
     if (index < 0) {
       return;
     }
     setCurrentMoveIndex(index);
   }
+  useEffect(() => {
+    engine?.findBestMove(data.LastPosition);
+  }, [engine, data.LastPosition]);
 
   useEffect(() => {
     const item = moveList[currentMoveIndex];
@@ -83,8 +89,7 @@ export function GameViewer({ data }: IReplayProps) {
       if (!isMute) {
         playSound(item);
       }
-      console.log('findBestMove call');
-      // findBestMove(item.before);
+      engine?.findBestMove(item.after);
       setFen(item.after);
     }
     if (currentMoveIndex >= moveList.length) {
@@ -93,7 +98,37 @@ export function GameViewer({ data }: IReplayProps) {
   }, [currentMoveIndex]);
 
   useEffect(() => {
-    let intervalId;
+    console.log('Update Elo bar', gameData);
+    if (gameData && gameData.bestmove) {
+      const [, player] = gameData.position.split(' ');
+      const bestMove = gameData.lines.find((x) =>
+        x.pv.startsWith(gameData.bestmove.bestmove)
+      );
+      if (!bestMove) {
+        return;
+      }
+      const score = bestMove.score.value / 100;
+      // console.log('player', bestMove, player, score);
+
+      let p = Math.min(50, (score / 8) * 50);
+      if (bestMove.score.type === 'mate') {
+        p = (49 * bestMove.score.value) / Math.abs(bestMove.score.value);
+        setEloText(`M${score.toFixed()}`);
+      } else {
+        setEloText(Math.abs(score).toFixed(1));
+      }
+      if (player === 'w') {
+        whiteElo.current.style.height = 50 + p + '%';
+        blackElo.current.style.height = 50 - p + '%';
+      } else {
+        whiteElo.current.style.height = 50 - p + '%';
+        blackElo.current.style.height = 50 + p + '%';
+      }
+    }
+  }, [gameData]);
+
+  useEffect(() => {
+    let intervalId: number = 0;
 
     if (isPlaying) {
       intervalId = setInterval(() => {
@@ -107,24 +142,24 @@ export function GameViewer({ data }: IReplayProps) {
         }
       }, 1000);
     } else {
-      clearInterval(intervalId);
+      if (intervalId) clearInterval(intervalId);
     }
 
     return () => {
       clearInterval(intervalId);
     };
-  }, [isPlaying]);
+  }, [isPlaying, moveList.length, currentMoveIndex]);
 
   useEffect(() => {
     const simulateGame = new Chess();
-    for (let move of data.Moves) {
+    for (const move of data.Moves) {
       simulateGame.move(move);
     }
-    setMoveList(simulateGame.history({ verbose: true }) as any);
+    setMoveList(simulateGame.history({ verbose: true }));
   }, [data.Moves]);
 
   useEffect(() => {
-    const handleKeyPress = (e) => {
+    const handleKeyPress = (e: any) => {
       if (e.key === 'ArrowRight') {
         moveTo(currentMoveIndex + 1);
       }
@@ -167,6 +202,18 @@ export function GameViewer({ data }: IReplayProps) {
       <div className="pt-1 text-center mb-3">{data.ECO}</div>
 
       <div className="flex">
+        <div className="elo-bar" style={{ height: height - 200 }}>
+          <span className="absolute text-xs p-1 text-white">{eloText}</span>
+          <div
+            className="w-full h-[50%] bg-black-100 transition-height duration-500 ease-linear"
+            ref={blackElo}
+          ></div>
+          <div
+            className="w-full h-[50%] bg-green-500 transition-height duration-500 ease-linear"
+            ref={whiteElo}
+          ></div>
+        </div>
+
         <div className="flex flex-col">
           <Chessboard position={fen} boardWidth={height - 200} />
           <div className="flex w-full justify-center mt-3 items-center">
@@ -246,8 +293,6 @@ export function GameViewer({ data }: IReplayProps) {
           ))}
         </div>
       </div>
-
-      <div></div>
     </div>
   );
 }

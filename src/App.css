@@ -47,3 +47,12 @@ em {
     width: 14%
   }
 }
+
+.elo-bar{
+  width: 27px;
+  background-color: #686666;
+  margin-left: 0.1px;
+  margin-right:0.1px;
+  margin-right: 5px;
+  border: solid 0.1px #ccc
+}

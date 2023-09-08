@@ -1,32 +1,31 @@
 import { useEffect, useState } from 'react';
-// import Stockfish from 'stockfish/src/stockfish-nnue-16.js'
-// import Stockfish from './stockfish-nnue-16.wasm'
+// import init from '../assets/stockfish-nnue-16.wasm?init';
+// import '../assets/stockfish-nnue-16.js';
+import { StockfishEngine } from './StockfishEngine';
+
 export function useStockfish() {
-  const [fen, findBestMove] = useState();
-  if (fen) {
-    console.log(fen);
-  }
-  // const stockfish = Stockfish();
-  // const sendCommand = (command) => {
-  //   stockfish.postMessage(command);
-  // };
+  const [gameData, setGameData] = useState<any>();
+  const [engine, setEngine] = useState<StockfishEngine>();
 
-  // stockfish.onmessage = (event) => {
-  //   console.log(event.data);
-  //   // Handle Stockfish responses here
-  // };
+  useEffect(() => {
+    const initStockfishWorkerEngine = async () => {
+      const stockFishEngine = await (window as unknown as any).Stockfish();
+      setEngine(
+        new StockfishEngine(stockFishEngine, (data) => {
+          setGameData(data);
+        })
+      );
+    };
+    if (!engine) {
+      initStockfishWorkerEngine();
+    }
+    return () => {
+      if (engine) engine.quit();
+    };
+  }, [engine]);
 
-  // // Start Stockfish
-  // sendCommand('uci');
-  // sendCommand('isready');
-  // sendCommand('ucinewgame');
-  // useEffect(() => {
-  //     sendCommand(`position fen ${fen}`);
-  //     sendCommand('go depth 15');
-  //     console.log('sending command to stockfish', fen)
-  // }, [fen])
   return {
-    fen,
-    findBestMove,
+    gameData,
+    engine,
   };
 }
