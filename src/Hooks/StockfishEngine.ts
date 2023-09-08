@@ -18,20 +18,28 @@ export class StockfishEngine {
   private outputs: string[] = [];
   private data: EngineData = { lines: [] };
   private isReady = false;
-  constructor(
-    private engine: any,
-    private emitter: (data: EngineData) => void
-  ) {
-    engine.addMessageListener(this.processMessage.bind(this));
+  private engine: Worker;
+  constructor(private emitter: (data: EngineData) => void) {
+    this.engine = new Worker('/sf/stockfish.js#stockfish.wasm');
+
+    this.engine.onmessage = this.processMessage.bind(this);
 
     this.sendUci('uci');
-    // this.setOption('MultiPV', 2);
+    this.setOption('Use NNUE', 'true');
+    this.setOption('MultiPV', 2);
   }
-  processMessage(line: string) {
+  processMessage(event: MessageEvent) {
+    const line = event.data;
     if (line === 'uciok') {
       this.isReady = true;
     }
-
+    const excluded = [
+      'info string classical evaluation enabled.',
+      'info string NNUE evaluation enabled.',
+    ];
+    if (excluded.includes(line)) {
+      return;
+    }
     // console.log(line);
     this.outputs.push(line);
     this.parseBestMove(line);
@@ -61,7 +69,7 @@ export class StockfishEngine {
   }
 
   private parseInfoLine(infoLine: string) {
-    if (!infoLine.startsWith('info')) {
+    if (!infoLine.startsWith('info') || infoLine.includes('currmovenumber')) {
       return null;
     }
 

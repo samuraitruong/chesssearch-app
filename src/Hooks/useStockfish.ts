@@ -9,9 +9,9 @@ export function useStockfish() {
 
   useEffect(() => {
     const initStockfishWorkerEngine = async () => {
-      const stockFishEngine = await (window as unknown as any).Stockfish();
+      // const stockFishEngine = await (window as unknown as any).Stockfish();
       setEngine(
-        new StockfishEngine(stockFishEngine, (data) => {
+        new StockfishEngine((data) => {
           setGameData(data);
         })
       );

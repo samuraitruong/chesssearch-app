@@ -24,7 +24,7 @@ interface IReplayProps {
     ECO: string;
   };
 }
-function partitionListIntoPairs(arr: any[]) {
+function partitionListIntoPairs<T>(arr: T[]): Array<T[]> {
   return arr.reduce((result, current, index) => {
     if (index % 2 === 0) {
       result.push([current]);
@@ -32,7 +32,7 @@ function partitionListIntoPairs(arr: any[]) {
       result[Math.floor(index / 2)].push(current);
     }
     return result;
-  }, []);
+  }, [] as Array<T[]>);
 }
 
 const playSound = (move: Move) => {
@@ -98,8 +98,8 @@ export function GameViewer({ data }: IReplayProps) {
   }, [currentMoveIndex]);
 
   useEffect(() => {
-    console.log('Update Elo bar', gameData);
     if (gameData && gameData.bestmove) {
+      // console.log('Update Elo bar', gameData);
       const [, player] = gameData.position.split(' ');
       const bestMove = gameData.lines.find((x) =>
         x.pv.startsWith(gameData.bestmove.bestmove)
@@ -113,7 +113,7 @@ export function GameViewer({ data }: IReplayProps) {
       let p = Math.min(50, (score / 8) * 50);
       if (bestMove.score.type === 'mate') {
         p = (49 * bestMove.score.value) / Math.abs(bestMove.score.value);
-        setEloText(`M${score.toFixed()}`);
+        setEloText(`M${bestMove.score.value.toFixed(0)}`);
       } else {
         setEloText(Math.abs(score).toFixed(1));
       }
@@ -192,7 +192,7 @@ export function GameViewer({ data }: IReplayProps) {
     element.click();
   };
 
-  const pairMoves = partitionListIntoPairs(moveList);
+  const pairMoves: Array<Move> = partitionListIntoPairs(moveList);
   return (
     <div>
       <div className="pt-3 text-center font-semibold">
