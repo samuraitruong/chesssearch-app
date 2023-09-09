@@ -8,7 +8,6 @@ export function useStockfish() {
 
   useEffect(() => {
     const initStockfishWorkerEngine = async () => {
-      // const stockFishEngine = await (window as unknown as any).Stockfish();
       setEngine(
         new StockfishEngine((type, data) => {
           if (type === 'review') {
