@@ -10,6 +10,7 @@ import {
   Pagination,
   SearchBox,
 } from 'react-instantsearch';
+
 import './App.css';
 import { DisplaySelector } from './Components/DisplaySelector';
 import { Panel } from './Components/Panel';
@@ -56,7 +57,7 @@ export default function App() {
       indexName={indexName}
       insights={false}
     >
-      <Configure hitsPerPage={20} />
+      <Configure hitsPerPage={30} />
       <header className="header-bg flex justify-center items-center min-height-[170px] p-2 bg-opacity-50 bg-white bg-contain pt-[150px]">
         <SearchBox
           placeholder="Search keywork (ie: Magnus vs Hiraku)"
