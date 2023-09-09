@@ -111,10 +111,10 @@ export function GameViewer({ data }: IReplayProps) {
     if (currentMoveIndex >= moveList.length) {
       setIsPlaying(false);
     }
-  }, [currentMoveIndex]);
+  }, [currentMoveIndex, isMute, moveList]);
 
   useEffect(() => {
-    if (gameData && gameData.bestmove) {
+    if (gameData && gameData.bestmove && gameData.position) {
       // console.log('Update Elo bar', gameData);
       const [, player] = gameData.position.split(' ');
       const bestMove = gameData.lines.find((x: any) =>
