@@ -1,3 +1,13 @@
+import { Move } from 'chess.js';
+import { calculateWinChange } from '../Libs/Elevation';
+interface ReviewdMove extends Move {
+  review: ReviewData;
+}
+// https://lichess.org/page/accuracy
+interface ReviewData extends EngineData {
+  accuracy?: number;
+  classification?: string;
+}
 export interface EngineData {
   position?: string;
   bestmove?: {
@@ -5,6 +15,7 @@ export interface EngineData {
     ponder: string;
   };
   lines?: Array<{
+    winChance?: number;
     pv: string;
     depth: number;
     multipv: number;
@@ -17,22 +28,24 @@ export interface EngineData {
 export class StockfishEngine {
   private outputs: string[] = [];
   private data: EngineData = { lines: [] };
-  private isReady = false;
   private engine: Worker;
-  constructor(private emitter: (data: EngineData) => void) {
+  constructor(
+    private emitter: (type: 'review' | 'bestmove', data: any) => void
+  ) {
     this.engine = new Worker('/sf/stockfish.js#stockfish.wasm');
 
     this.engine.onmessage = this.processMessage.bind(this);
 
     this.sendUci('uci');
     this.setOption('Use NNUE', 'true');
-    this.setOption('MultiPV', 2);
+    // this.setOption('MultiPV', 2);
+    this.setOption('Threads', 5);
+    // this.setOption('Clear', 'Hash');
+    // this.setOption('Hash', 128);
   }
   processMessage(event: MessageEvent) {
     const line = event.data;
-    if (line === 'uciok') {
-      this.isReady = true;
-    }
+
     const excluded = [
       'info string classical evaluation enabled.',
       'info string NNUE evaluation enabled.',
@@ -76,6 +89,7 @@ export class StockfishEngine {
     const parts = infoLine.split(' ');
 
     const result = {
+      winChance: 0,
       depth: parseInt(parts[2], 10),
       seldepth: parseInt(parts[4], 10),
       multipv: parseInt(parts[6], 10),
@@ -89,6 +103,9 @@ export class StockfishEngine {
       pv: parts.slice(parts.indexOf('pv') + 1).join(' '),
     };
     this.data.lines = this.data.lines || [];
+    if (result.score.type === 'cp') {
+      result.winChance = calculateWinChange(result.score.value);
+    }
     this.data.lines.push(result);
     return result;
   }
@@ -101,7 +118,7 @@ export class StockfishEngine {
     if (this.data.lines) {
       this.data.lines.sort((a, b) => b.score.value - a.score.value);
     }
-    if (this.data) this.emitter(this.data);
+    if (this.data) this.emitter('bestmove', this.data);
   }
   setOption(key: string, value: string | number) {
     this.sendUci(`setoption name ${key} value ${value}\n`);
@@ -110,14 +127,111 @@ export class StockfishEngine {
     this.sendUci('stop');
     this.sendUci('quit');
   }
+  async waitForReady() {
+    this.sendUci('isready');
+    await this.waitFor('readyok');
+  }
   async findBestMove(position: string, depth = 18) {
+    const start = Date.now();
     this.reset();
     this.sendUci('stop');
+    await this.waitForReady();
+    this.setOption('UCI_AnalyseMode', 'false');
     this.data.position = position;
     this.sendUci('ucinewgame');
     this.sendUci('position fen ' + position);
     this.sendUci('go depth ' + depth);
     await this.waitFor('bestmove');
+    console.log('bestmove found in %d ms', Date.now() - start);
     this.emit();
+  }
+
+  moveClassification(move: ReviewdMove, prevMove: ReviewdMove) {
+    let classification = 'book';
+    let accuracy = 100;
+
+    if (prevMove) {
+      const bestMoveLine = move.review.lines?.[0];
+      const bestPreviousMoveLine = prevMove.review.lines?.[0];
+
+      accuracy =
+        103.1668 *
+          Math.exp(
+            -0.04354 *
+              ((bestPreviousMoveLine?.winChance || 0) -
+                (bestMoveLine?.winChance || 0))
+          ) -
+        3.1669;
+
+      if (accuracy < 99) {
+        classification = 'great';
+      }
+      if (accuracy < 95) {
+        classification = 'excellent';
+      }
+
+      if (accuracy < 80) {
+        classification = 'good';
+      }
+
+      if (accuracy < 70) {
+        classification = 'inaccuracy';
+      }
+      if (accuracy < 50) {
+        classification = 'mistake';
+      }
+
+      if (accuracy < 30) {
+        classification = 'blunder';
+      }
+    }
+    // if (bestMoveLine) {
+    //   const { bestmove } = move.review.bestmove.bestmove;
+    //   if (yourMove) {
+    //     const diff = yourMove.score.value - bestMoveLine.score.value;
+
+    //     if (diff < -20) classification = 'excellent';
+    //     if (diff < -50) classification = 'good';
+    //     if (diff < -100) classification = 'inaccuracy';
+    //     if (diff < -300) classification = 'mistake';
+    //     if (diff < -400) classification = 'blunder';
+
+    //     console.log('diff', diff, move.lan, move.san, classification);
+    //   }
+
+    //   move.review.bestElo = bestMoveLine.score.value;
+    //   move.review.yourElo = yourMove?.score.value;
+
+    //   if (bestmove === move.lan) {
+    //     classification = 'best';
+    //   }
+    // }
+    move.review.accuracy = accuracy;
+    move.review.classification = classification;
+    return move;
+  }
+
+  async gameReview(moves: Move[], depth = 12) {
+    //  loop throught all the moves and find the bestmove
+    this.sendUci('stop');
+    this.setOption('UCI_AnalyseMode', 'true');
+    const analysysData: any[] = [];
+    for (const move of moves) {
+      this.outputs = [];
+      //this.sendUci(`position fen ${move.before} moves ${move.lan}`);
+      this.sendUci(`position fen ${move.before}`);
+      this.sendUci('go depth ' + depth);
+      await this.waitFor('bestmove');
+      if (this.data.lines) {
+        this.data.lines.sort((a, b) => b.score.value - a.score.value);
+      }
+      analysysData.push({ review: { ...this.data }, ...move });
+      // console.log('reviewing move ', move.san);
+      this.data.lines = [];
+    }
+    const classificationMoves = analysysData.map((x, index) =>
+      this.moveClassification(x, analysysData[index - 1])
+    );
+    this.emitter('review', classificationMoves);
   }
 }

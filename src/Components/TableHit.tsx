@@ -1,5 +1,4 @@
 import type { Hit } from 'instantsearch.js';
-import React from 'react';
 import { Highlight } from 'react-instantsearch';
 
 type HitProps = {

@@ -1,7 +1,6 @@
-import React from 'react';
 import { Highlight, useInfiniteHits, Snippet } from 'react-instantsearch';
 
-export function InfiniteHits(props) {
+export function InfiniteHits(props: any) {
   const { hits } = useInfiniteHits(props);
 
   return (

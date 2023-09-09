@@ -1,18 +1,24 @@
 import { useEffect, useState } from 'react';
-// import init from '../assets/stockfish-nnue-16.wasm?init';
-// import '../assets/stockfish-nnue-16.js';
 import { StockfishEngine } from './StockfishEngine';
 
 export function useStockfish() {
   const [gameData, setGameData] = useState<any>();
+  const [reviewData, setReviewData] = useState<any[]>([]);
   const [engine, setEngine] = useState<StockfishEngine>();
 
   useEffect(() => {
     const initStockfishWorkerEngine = async () => {
       // const stockFishEngine = await (window as unknown as any).Stockfish();
       setEngine(
-        new StockfishEngine((data) => {
-          setGameData(data);
+        new StockfishEngine((type, data) => {
+          if (type === 'review') {
+            setReviewData(data);
+            console.log(data);
+          }
+
+          if (type === 'bestmove') {
+            setGameData(data);
+          }
         })
       );
     };
@@ -26,6 +32,7 @@ export function useStockfish() {
 
   return {
     gameData,
+    reviewData,
     engine,
   };
 }

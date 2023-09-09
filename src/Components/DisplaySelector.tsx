@@ -1,4 +1,3 @@
-import React from 'react';
 import { CgDisplayGrid, CgList, CgMenuCheese } from 'react-icons/cg';
 
 interface IDisplaySelectorProps {

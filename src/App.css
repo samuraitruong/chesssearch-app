@@ -56,3 +56,48 @@ em {
   margin-right: 5px;
   border: solid 0.1px #ccc
 }
+
+/* Best Move */
+.move-classification-best {
+  color: #95bb4a;
+}
+
+/* Excellent Move */
+.move-classification-excellent {
+  color: #96bc4b;
+}
+
+/* Good Move */
+.move-classification-good {
+  color: #96af8b;
+}
+
+/* Book Move */
+.move-classification-book {
+  color: #a88865
+}
+
+/* Inaccuracy */
+.move-classification-inaccuracy {
+  color: #f0c15c
+}
+
+/* Mistake */
+.move-classification-mistake {
+  color: #e58f2a
+}
+
+/* Blunder */
+.move-classification-blunder {
+  color: #ca3431
+}
+
+.move-classification-briliant {
+  color: #1baca6;
+}
+.move-classification-great {
+  color: #5c8bb0;
+}
+.move-classification-miss {
+  color: #ee6b55
+}

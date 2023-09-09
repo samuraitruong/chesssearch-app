@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Chessboard } from 'react-chessboard';
-import { Chess, Move } from 'chess.js';
+import { Chess, Move, Square } from 'chess.js';
 import { LuChevronFirst, LuDownload, LuChevronLast } from 'react-icons/lu';
 import { BsPlayFill, BsStopFill } from 'react-icons/bs';
 import { GrPrevious, GrNext } from 'react-icons/gr';
@@ -63,8 +63,9 @@ export function GameViewer({ data }: IReplayProps) {
   const blackElo = useRef<HTMLDivElement>();
   const whiteElo = useRef<HTMLDivElement>();
   const [eloText, setEloText] = useState('0.0');
+  const [arrow, setArrow] = useState<Square[][]>([]);
   const [moveList, setMoveList] = useState<Move[]>([]);
-  const { engine, gameData } = useStockfish();
+  const { engine, gameData, reviewData } = useStockfish();
   const { height } = useViewport();
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
@@ -79,17 +80,32 @@ export function GameViewer({ data }: IReplayProps) {
     }
     setCurrentMoveIndex(index);
   }
+
+  useEffect(() => {
+    if (reviewData) {
+      setMoveList(reviewData);
+    }
+  }, [reviewData]);
   useEffect(() => {
     engine?.findBestMove(data.LastPosition);
   }, [engine, data.LastPosition]);
 
   useEffect(() => {
-    const item = moveList[currentMoveIndex];
+    const item: any = moveList[currentMoveIndex];
     if (item) {
       if (!isMute) {
         playSound(item);
       }
       engine?.findBestMove(item.after);
+      if (item.review) {
+        const bestmove: string = item.review.bestmove.bestmove || '';
+        setArrow([
+          [
+            bestmove.substring(0, 2) as Square,
+            bestmove.substring(2, 2) as Square,
+          ],
+        ]);
+      }
       setFen(item.after);
     }
     if (currentMoveIndex >= moveList.length) {
@@ -101,7 +117,7 @@ export function GameViewer({ data }: IReplayProps) {
     if (gameData && gameData.bestmove) {
       // console.log('Update Elo bar', gameData);
       const [, player] = gameData.position.split(' ');
-      const bestMove = gameData.lines.find((x) =>
+      const bestMove = gameData.lines.find((x: any) =>
         x.pv.startsWith(gameData.bestmove.bestmove)
       );
       if (!bestMove) {
@@ -117,12 +133,14 @@ export function GameViewer({ data }: IReplayProps) {
       } else {
         setEloText(Math.abs(score).toFixed(1));
       }
-      if (player === 'w') {
-        whiteElo.current.style.height = 50 + p + '%';
-        blackElo.current.style.height = 50 - p + '%';
-      } else {
-        whiteElo.current.style.height = 50 - p + '%';
-        blackElo.current.style.height = 50 + p + '%';
+      if (whiteElo.current && blackElo.current) {
+        if (player === 'w') {
+          whiteElo.current.style.height = 50 + p + '%';
+          blackElo.current.style.height = 50 - p + '%';
+        } else {
+          whiteElo.current.style.height = 50 - p + '%';
+          blackElo.current.style.height = 50 + p + '%';
+        }
       }
     }
   }, [gameData]);
@@ -192,7 +210,11 @@ export function GameViewer({ data }: IReplayProps) {
     element.click();
   };
 
-  const pairMoves: Array<Move> = partitionListIntoPairs(moveList);
+  const pairMoves = partitionListIntoPairs(moveList);
+
+  const getClassName = (m: any) => {
+    return 'move-classification-' + m.review?.classification || '';
+  };
   return (
     <div>
       <div className="pt-3 text-center font-semibold">
@@ -205,17 +227,22 @@ export function GameViewer({ data }: IReplayProps) {
         <div className="elo-bar" style={{ height: height - 200 }}>
           <span className="absolute text-xs p-1 text-white">{eloText}</span>
           <div
-            className="w-full h-[50%] bg-black-100 transition-height duration-500 ease-linear"
-            ref={blackElo}
+            className="w-full h-[50%] bg-black-100 transition-height duration-300 ease-linear"
+            ref={blackElo as any}
           ></div>
           <div
-            className="w-full h-[50%] bg-green-500 transition-height duration-500 ease-linear"
-            ref={whiteElo}
+            className="w-full h-[50%] bg-green-500 transition-height duration-300 ease-linear"
+            ref={whiteElo as any}
           ></div>
         </div>
 
         <div className="flex flex-col">
-          <Chessboard position={fen} boardWidth={height - 200} />
+          <Chessboard
+            position={fen}
+            boardWidth={height - 200}
+            customArrows={arrow}
+            customArrowColor="#11d954"
+          />
           <div className="flex w-full justify-center mt-3 items-center">
             <button onClick={() => moveTo(0)} className="p-3 cursor-pointer">
               <LuChevronFirst />
@@ -255,6 +282,13 @@ export function GameViewer({ data }: IReplayProps) {
             <button onClick={handleDownload} className="p-3 cursor-pointer">
               <LuDownload />
             </button>
+
+            <button
+              onClick={() => engine?.gameReview(moveList)}
+              className="p-3 cursor-pointer"
+            >
+              Review me
+            </button>
           </div>
         </div>
         <div
@@ -274,7 +308,7 @@ export function GameViewer({ data }: IReplayProps) {
                   index * 2 === currentMoveIndex
                     ? 'bg-blue-500 font-medium text-white'
                     : ''
-                }`}
+                } ${getClassName(white)}`}
                 onClick={() => moveTo(index * 2)}
               >
                 {white?.san}
@@ -284,7 +318,7 @@ export function GameViewer({ data }: IReplayProps) {
                   index * 2 + 1 === currentMoveIndex
                     ? 'bg-blue-500 font-medium text-white'
                     : ''
-                }`}
+                } ${getClassName(white)}`}
                 onClick={() => moveTo(index * 2 + 1)}
               >
                 {black?.san}

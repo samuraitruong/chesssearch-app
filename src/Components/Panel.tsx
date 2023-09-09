@@ -1,5 +1,3 @@
-import React from 'react';
-
 type PanelProps = React.PropsWithChildren<{
   header: string;
 }>;
