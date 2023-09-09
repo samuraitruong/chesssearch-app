@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public;,max-age=3600000"
+          "value": "public, max-age=3600000"
         },
         { "key": "Cross-Origin-Embedder-Policy", "value": "require-corp" },
         { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
