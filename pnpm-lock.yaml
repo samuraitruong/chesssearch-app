@@ -20,6 +20,9 @@ dependencies:
   instantsearch.css:
     specifier: ^8.0.0
     version: 8.0.0
+  instantsearch.js:
+    specifier: ^4.56.10
+    version: 4.56.10(algoliasearch@4.0.0)
   parcel-packager-wasm:
     specifier: ^0.0.0
     version: 0.0.0
@@ -1642,6 +1645,27 @@ packages:
 
   /instantsearch.css@8.0.0:
     resolution: {integrity: sha512-yU63cF9KdkyFFh7ynYQy39nh1MD1eVDHIaa/gdm8a/O9dTG/5P6hBF1ONoIbKTtjlxxsHS2S8MarCZZ0l31ajg==}
+    dev: false
+
+  /instantsearch.js@4.56.10(algoliasearch@4.0.0):
+    resolution: {integrity: sha512-ViW2JGUgxcDaQ9/3CRBPrw0fK63XalsZnZhohYgdVZLAdacgGUPO8txWLJ5g2477XHtMS1T4sTYlyCyDIcCQ8A==}
+    peerDependencies:
+      algoliasearch: '>= 3.1 < 6'
+    dependencies:
+      '@algolia/events': 4.0.1
+      '@algolia/ui-components-highlight-vdom': 1.2.1
+      '@algolia/ui-components-shared': 1.2.1
+      '@types/dom-speech-recognition': 0.0.1
+      '@types/google.maps': 3.54.0
+      '@types/hogan.js': 3.0.1
+      '@types/qs': 6.9.8
+      algoliasearch: 4.0.0
+      algoliasearch-helper: 3.14.0(algoliasearch@4.0.0)
+      hogan.js: 3.0.2
+      htm: 3.1.1
+      preact: 10.17.1
+      qs: 6.9.7
+      search-insights: 2.8.2
     dev: false
 
   /instantsearch.js@4.56.9(algoliasearch@4.0.0):

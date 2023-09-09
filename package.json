@@ -16,6 +16,7 @@
     "concurrently": "^8.2.1",
     "git": "link:github.com:samuraitruong/local-proxy-cli.git",
     "instantsearch.css": "^8.0.0",
+    "instantsearch.js": "^4.56.10",
     "parcel-packager-wasm": "^0.0.0",
     "postcss": "^8.4.29",
     "react": "18.2.0",
