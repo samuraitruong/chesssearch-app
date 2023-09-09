@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { StockfishEngine } from './StockfishEngine';
+import { ReviewStatus, StockfishEngine } from './StockfishEngine';
 
 export function useStockfish() {
   const [gameData, setGameData] = useState<any>();
   const [reviewData, setReviewData] = useState<any[]>([]);
   const [engine, setEngine] = useState<StockfishEngine>();
+  const [reviewStatus, setReviewStatus] = useState<ReviewStatus | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const initStockfishWorkerEngine = async () => {
@@ -16,7 +19,11 @@ export function useStockfish() {
           }
 
           if (type === 'bestmove') {
+            console.log(data);
             setGameData(data);
+          }
+          if (type === 'review-status') {
+            setReviewStatus(data);
           }
         })
       );
@@ -33,5 +40,6 @@ export function useStockfish() {
     gameData,
     reviewData,
     engine,
+    reviewStatus,
   };
 }

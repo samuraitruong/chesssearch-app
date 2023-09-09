@@ -1,12 +1,26 @@
 import { Move } from 'chess.js';
 import { calculateWinChange } from '../Libs/Elevation';
+import asyncPool from 'tiny-async-pool';
+
 interface ReviewdMove extends Move {
   review: ReviewData;
+  index: number;
 }
 // https://lichess.org/page/accuracy
 interface ReviewData extends EngineData {
   accuracy?: number;
   classification?: string;
+}
+export interface StockfishLine {
+  winChance?: number;
+  pv: string;
+  depth: number;
+  multipv: number;
+  nodes: number;
+  score: {
+    value: number;
+    type: string;
+  };
 }
 export interface EngineData {
   position?: string;
@@ -14,23 +28,23 @@ export interface EngineData {
     bestmove: string;
     ponder: string;
   };
-  lines?: Array<{
-    winChance?: number;
-    pv: string;
-    depth: number;
-    multipv: number;
-    nodes: number;
-    score: {
-      value: number;
-    };
-  }>;
+  lines?: Array<StockfishLine>;
+}
+
+export interface ReviewStatus {
+  done: boolean;
+  total: number;
+  current: number;
 }
 export class StockfishEngine {
   private outputs: string[] = [];
   private data: EngineData = { lines: [] };
   private engine: Worker;
   constructor(
-    private emitter: (type: 'review' | 'bestmove', data: any) => void
+    private emitter: (
+      type: 'review' | 'bestmove' | 'review-status',
+      data: any
+    ) => void
   ) {
     this.engine = new Worker('/sf/stockfish.js#stockfish.wasm');
 
@@ -39,9 +53,9 @@ export class StockfishEngine {
     this.sendUci('uci');
     this.setOption('Use NNUE', 'true');
     // this.setOption('MultiPV', 2);
-    this.setOption('Threads', 5);
-    // this.setOption('Clear', 'Hash');
-    // this.setOption('Hash', 128);
+    this.setOption('Threads', 8);
+    this.setOption('Clear', 'Hash');
+    this.setOption('Hash', 128);
   }
   processMessage(event: MessageEvent) {
     const line = event.data;
@@ -114,11 +128,18 @@ export class StockfishEngine {
     this.data = { lines: [] };
     this.outputs = [];
   }
-  async emit() {
-    if (this.data.lines) {
-      this.data.lines.sort((a, b) => b.score.value - a.score.value);
-    }
+  async postEngineRun() {
+    console.log('post run', this.data);
+
+    const mates = this.data.lines?.filter((x) => x.score.type === 'mate') || [];
+    const normal = this.data.lines?.filter((x) => x.score.type === 'cp') || [];
+
+    mates.sort((a, b) => b.score.value - a.score.value);
+    normal.sort((a, b) => b.score.value - a.score.value);
+
+    this.data.lines = [...mates, ...normal];
     if (this.data) this.emitter('bestmove', this.data);
+    return this.data;
   }
   setOption(key: string, value: string | number) {
     this.sendUci(`setoption name ${key} value ${value}\n`);
@@ -126,6 +147,7 @@ export class StockfishEngine {
   public quit() {
     this.sendUci('stop');
     this.sendUci('quit');
+    this.engine.terminate();
   }
   async waitForReady() {
     this.sendUci('isready');
@@ -143,7 +165,7 @@ export class StockfishEngine {
     this.sendUci('go depth ' + depth);
     await this.waitFor('bestmove');
     console.log('bestmove found in %d ms', Date.now() - start);
-    this.emit();
+    return this.postEngineRun();
   }
 
   moveClassification(move: ReviewdMove, prevMove: ReviewdMove) {
@@ -206,32 +228,60 @@ export class StockfishEngine {
     //     classification = 'best';
     //   }
     // }
-    move.review.accuracy = accuracy;
-    move.review.classification = classification;
+    if (move.review) {
+      move.review.accuracy = accuracy;
+      move.review.classification = classification;
+    }
     return move;
   }
 
   async gameReview(moves: Move[], depth = 12) {
+    const moveWithIndex = moves.map((x, index) => ({ ...x, index }));
     //  loop throught all the moves and find the bestmove
     this.sendUci('stop');
     this.setOption('UCI_AnalyseMode', 'true');
-    const analysysData: any[] = [];
-    for (const move of moves) {
-      this.outputs = [];
-      //this.sendUci(`position fen ${move.before} moves ${move.lan}`);
-      this.sendUci(`position fen ${move.before}`);
-      this.sendUci('go depth ' + depth);
-      await this.waitFor('bestmove');
-      if (this.data.lines) {
-        this.data.lines.sort((a, b) => b.score.value - a.score.value);
-      }
-      analysysData.push({ review: { ...this.data }, ...move });
-      // console.log('reviewing move ', move.san);
-      this.data.lines = [];
+    const analysysData: ReviewdMove[] = [];
+    let current = 0;
+    const started = Date.now();
+    this.emitter('review-status', {
+      total: moves.length,
+      current: 0,
+      move: null,
+      elapsed: 0,
+      done: false,
+    });
+    const enginePool: StockfishEngine[] = [];
+    const findBestMoveInForkedEngine = async (move: Move) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const self =
+        enginePool.pop() || new StockfishEngine((_type, _data) => {});
+      const data = await self.findBestMove(move.before, depth);
+      enginePool.push(self);
+      return { review: data, ...move };
+    };
+    for await (const result of asyncPool(
+      12,
+      moveWithIndex,
+      findBestMoveInForkedEngine
+    )) {
+      current++;
+
+      analysysData.push(result as any);
+      this.emitter('review-status', {
+        total: moves.length,
+        current,
+        move: result,
+        elapsed: Date.now() - started,
+        done: current >= moves.length,
+      });
     }
+    analysysData.sort((x, y) => x.index - y.index);
     const classificationMoves = analysysData.map((x, index) =>
       this.moveClassification(x, analysysData[index - 1])
     );
+    for (const e of enginePool) {
+      e.quit();
+    }
     this.emitter('review', classificationMoves);
   }
 }

@@ -7,6 +7,9 @@ import { GrPrevious, GrNext } from 'react-icons/gr';
 import { PiSpeakerHigh, PiSpeakerX } from 'react-icons/pi';
 import { useStockfish } from '../Hooks/useStockfish';
 import useViewport from '../Hooks/useViewport';
+import { StockfishLine } from '../Hooks/StockfishEngine';
+import ReviewLoading from './ReviewLoading';
+import { MdReviews } from 'react-icons/md';
 interface IReplayProps {
   data: {
     Game: string;
@@ -65,7 +68,7 @@ export function GameViewer({ data }: IReplayProps) {
   const [eloText, setEloText] = useState('0.0');
   const [arrow, setArrow] = useState<Square[][]>([]);
   const [moveList, setMoveList] = useState<Move[]>([]);
-  const { engine, gameData, reviewData } = useStockfish();
+  const { engine, gameData, reviewData, reviewStatus } = useStockfish();
   const { height } = useViewport();
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
@@ -96,13 +99,13 @@ export function GameViewer({ data }: IReplayProps) {
       if (!isMute) {
         playSound(item);
       }
-      engine?.findBestMove(item.after);
+      engine?.findBestMove(item.after, 20);
       if (item.review) {
         const bestmove: string = item.review.bestmove.bestmove || '';
         setArrow([
           [
             bestmove.substring(0, 2) as Square,
-            bestmove.substring(2, 2) as Square,
+            bestmove.substring(2, 4) as Square,
           ],
         ]);
       }
@@ -112,12 +115,11 @@ export function GameViewer({ data }: IReplayProps) {
       setIsPlaying(false);
     }
   }, [currentMoveIndex, isMute, moveList]);
-
   useEffect(() => {
     if (gameData && gameData.bestmove && gameData.position) {
       // console.log('Update Elo bar', gameData);
       const [, player] = gameData.position.split(' ');
-      const bestMove = gameData.lines.find((x: any) =>
+      const bestMove = gameData.lines.find((x: StockfishLine) =>
         x.pv.startsWith(gameData.bestmove.bestmove)
       );
       if (!bestMove) {
@@ -127,6 +129,7 @@ export function GameViewer({ data }: IReplayProps) {
       // console.log('player', bestMove, player, score);
 
       let p = Math.min(50, (score / 8) * 50);
+      p = Math.max(-50, p);
       if (bestMove.score.type === 'mate') {
         p = (49 * bestMove.score.value) / Math.abs(bestMove.score.value);
         setEloText(`M${bestMove.score.value.toFixed(0)}`);
@@ -287,7 +290,7 @@ export function GameViewer({ data }: IReplayProps) {
               onClick={() => engine?.gameReview(moveList)}
               className="p-3 cursor-pointer"
             >
-              Review me
+              <MdReviews />
             </button>
           </div>
         </div>
@@ -327,6 +330,9 @@ export function GameViewer({ data }: IReplayProps) {
           ))}
         </div>
       </div>
+      {reviewStatus && !reviewStatus.done && (
+        <ReviewLoading data={reviewStatus} />
+      )}
     </div>
   );
 }
