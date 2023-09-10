@@ -332,6 +332,7 @@ export class StockfishEngine {
     }
     const whiteMoves = analysysData.filter((x) => x.color === 'w');
     const blackMoves = analysysData.filter((x) => x.color === 'b');
+    classificationMoves.sort((a, b) => a.index - b.index);
     const reviewedData = {
       moves: classificationMoves,
       summary: {

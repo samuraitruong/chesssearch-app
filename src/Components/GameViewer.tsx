@@ -30,6 +30,7 @@ interface IReplayProps {
     ECO: string;
   };
 }
+
 const playSound = (move: Move) => {
   let audioType = move.color === 'w' ? 'move-self' : 'move-opponent';
   if (move.san.includes('x')) {

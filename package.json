@@ -45,6 +45,7 @@
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vite-plugin-mkcert": "^1.16.0",
-    "vite-plugin-wasm": "^3.2.2"
+    "vite-plugin-wasm": "^3.2.2",
+    "vite-svg-loader": "^4.0.0"
   }
 }

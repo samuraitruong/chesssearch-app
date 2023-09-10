@@ -58,7 +58,8 @@ em {
 }
 
 /* Best Move */
-.move-classification-best {
+.move-classification-best,
+.move-classification-best-move {
   color: #95bb4a;
 }
 
@@ -95,7 +96,8 @@ em {
 .move-classification-briliant {
   color: #1baca6;
 }
-.move-classification-great {
+.move-classification-great,
+.move-classification-great-move {
   color: #5c8bb0;
 }
 .move-classification-miss {
