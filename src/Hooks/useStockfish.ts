@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ReviewStatus, StockfishEngine } from './StockfishEngine';
+import { GameReview, ReviewStatus, StockfishEngine } from './StockfishEngine';
 
 export function useStockfish() {
   const [gameData, setGameData] = useState<any>();
-  const [reviewData, setReviewData] = useState<any[]>([]);
+  const [reviewData, setReviewData] = useState<GameReview>();
   const [engine, setEngine] = useState<StockfishEngine>();
   const [reviewStatus, setReviewStatus] = useState<ReviewStatus | undefined>(
     undefined
@@ -19,7 +19,7 @@ export function useStockfish() {
           }
 
           if (type === 'bestmove') {
-            console.log(data);
+            // console.log(data);
             setGameData(data);
           }
           if (type === 'review-status') {

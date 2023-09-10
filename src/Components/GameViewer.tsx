@@ -10,6 +10,9 @@ import useViewport from '../Hooks/useViewport';
 import { StockfishLine } from '../Hooks/StockfishEngine';
 import ReviewLoading from './ReviewLoading';
 import { MdReviews } from 'react-icons/md';
+import ReviewSummary from './ReviewSummary';
+import { partitionListIntoPairs } from '../Libs/Utils';
+
 interface IReplayProps {
   data: {
     Game: string;
@@ -27,17 +30,6 @@ interface IReplayProps {
     ECO: string;
   };
 }
-function partitionListIntoPairs<T>(arr: T[]): Array<T[]> {
-  return arr.reduce((result, current, index) => {
-    if (index % 2 === 0) {
-      result.push([current]);
-    } else {
-      result[Math.floor(index / 2)].push(current);
-    }
-    return result;
-  }, [] as Array<T[]>);
-}
-
 const playSound = (move: Move) => {
   let audioType = move.color === 'w' ? 'move-self' : 'move-opponent';
   if (move.san.includes('x')) {
@@ -78,7 +70,11 @@ export function GameViewer({ data }: IReplayProps) {
   const [isMute, setMute] = useState(false);
 
   function moveTo(index: number) {
+    console.log(index);
     if (index < 0) {
+      return;
+    }
+    if (index >= moveList.length - 1) {
       return;
     }
     setCurrentMoveIndex(index);
@@ -86,7 +82,7 @@ export function GameViewer({ data }: IReplayProps) {
 
   useEffect(() => {
     if (reviewData) {
-      setMoveList(reviewData);
+      setMoveList(reviewData.moves);
     }
   }, [reviewData]);
   useEffect(() => {
@@ -99,9 +95,9 @@ export function GameViewer({ data }: IReplayProps) {
       if (!isMute) {
         playSound(item);
       }
-      engine?.findBestMove(item.after, 20);
-      if (item.review) {
-        const bestmove: string = item.review.bestmove.bestmove || '';
+      engine?.findBestMove(item.after, 18);
+      if (item.best) {
+        const bestmove: string = item.best.bestmove.bestmove || '';
         setArrow([
           [
             bestmove.substring(0, 2) as Square,
@@ -130,19 +126,20 @@ export function GameViewer({ data }: IReplayProps) {
 
       let p = Math.min(50, (score / 8) * 50);
       p = Math.max(-50, p);
+      p = bestMove.winChance;
       if (bestMove.score.type === 'mate') {
-        p = (49 * bestMove.score.value) / Math.abs(bestMove.score.value);
+        p = (100 * bestMove.score.value) / Math.abs(bestMove.score.value);
         setEloText(`M${bestMove.score.value.toFixed(0)}`);
       } else {
         setEloText(Math.abs(score).toFixed(1));
       }
       if (whiteElo.current && blackElo.current) {
         if (player === 'w') {
-          whiteElo.current.style.height = 50 + p + '%';
-          blackElo.current.style.height = 50 - p + '%';
+          whiteElo.current.style.height = p + '%';
+          blackElo.current.style.height = 100 - p + '%';
         } else {
-          whiteElo.current.style.height = 50 - p + '%';
-          blackElo.current.style.height = 50 + p + '%';
+          whiteElo.current.style.height = 100 - p + '%';
+          blackElo.current.style.height = p + '%';
         }
       }
     }
@@ -178,7 +175,6 @@ export function GameViewer({ data }: IReplayProps) {
     }
     setMoveList(simulateGame.history({ verbose: true }));
   }, [data.Moves]);
-
   useEffect(() => {
     const handleKeyPress = (e: any) => {
       if (e.key === 'ArrowRight') {
@@ -287,7 +283,7 @@ export function GameViewer({ data }: IReplayProps) {
             </button>
 
             <button
-              onClick={() => engine?.gameReview(moveList)}
+              onClick={() => engine?.gameReview(moveList, 12)}
               className="p-3 cursor-pointer"
             >
               <MdReviews />
@@ -295,12 +291,15 @@ export function GameViewer({ data }: IReplayProps) {
           </div>
         </div>
         <div
-          className="ml-3 flex flex-col pl-2 w-[220px] overflow-y-scroll overflow-x-hidden"
+          className="ml-3 flex flex-col pl-2 w-[320px] overflow-y-scroll overflow-x-hidden"
           style={{ maxHeight: height - 200 }}
         >
+          {reviewData && reviewData.summary && (
+            <ReviewSummary data={reviewData.summary} result={data.Result} />
+          )}
           {pairMoves?.map(([white, black], index) => (
             <div
-              className="flex w-[220px] items-center border-b border-dashed border-gray-300 mb-1"
+              className="flex w-full items-center border-b border-dashed border-gray-300 mb-1"
               key={index}
             >
               <span className="text-right w-[25px] block mr-2">

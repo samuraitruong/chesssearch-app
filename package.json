@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.198",
     "@types/tiny-async-pool": "^2.0.0",
     "algoliasearch": "4",
     "chess.js": "^1.0.0-beta.6",
@@ -18,10 +19,12 @@
     "git": "link:github.com:samuraitruong/local-proxy-cli.git",
     "instantsearch.css": "^8.0.0",
     "instantsearch.js": "^4.56.10",
+    "lodash": "^4.17.21",
     "parcel-packager-wasm": "^0.0.0",
     "postcss": "^8.4.29",
     "react": "18.2.0",
     "react-chessboard": "^4.1.0",
+    "react-circular-progressbar": "^2.1.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
     "react-instantsearch": "7.0.1",
