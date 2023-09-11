@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chessboard } from 'react-chessboard';
-import { Chess, Move, Square } from 'chess.js';
+import { Move, Square } from 'chess.js';
 import { LuChevronFirst, LuDownload, LuChevronLast } from 'react-icons/lu';
 import { BsPlayFill, BsStopFill } from 'react-icons/bs';
 import { GrPrevious, GrNext } from 'react-icons/gr';
@@ -11,7 +11,8 @@ import { ReviewedMove, StockfishLine } from '../Hooks/StockfishEngine';
 import ReviewLoading from './ReviewLoading';
 import { MdReviews } from 'react-icons/md';
 import ReviewSummary from './ReviewSummary';
-import { partitionListIntoPairs } from '../Libs/Utils';
+import { partitionListIntoPairs, simulateGame } from '../Libs/Utils';
+import CapturedPieces from './CapaturedPieces';
 
 const SF_DEPTH = 18;
 
@@ -25,12 +26,15 @@ interface IReplayProps {
     Event: string;
     Site: string;
     Pgn: string;
+    pgn?: string;
     Moves: string[];
     LastPosition: string;
     Year: string;
     Result: string;
     ECO: string;
     fen?: string;
+    result?: string;
+    year?: string;
   };
 }
 
@@ -59,6 +63,7 @@ const playSound = (move: Move) => {
   new Audio(`${fileCDN}/${audioType}.mp3`).play();
 };
 export function GameViewer({ data }: IReplayProps) {
+  const [currentMove, setCurrentMove] = useState<any>();
   const blackElo = useRef<HTMLDivElement>();
   const whiteElo = useRef<HTMLDivElement>();
   const [eloText, setEloText] = useState('0.0');
@@ -75,7 +80,7 @@ export function GameViewer({ data }: IReplayProps) {
   const [isMute, setMute] = useState(false);
 
   const boardSize = useMemo(
-    () => Math.min(height - 200, width - 400),
+    () => Math.min(height - 300, width - 400),
     [width, height]
   );
   function moveTo(index: number) {
@@ -114,6 +119,7 @@ export function GameViewer({ data }: IReplayProps) {
         ]);
       }
       setFen(item.after);
+      setCurrentMove(item);
     }
     if (currentMoveIndex >= moveList.length) {
       setIsPlaying(false);
@@ -177,27 +183,10 @@ export function GameViewer({ data }: IReplayProps) {
   }, [isPlaying, moveList.length, currentMoveIndex]);
 
   useEffect(() => {
-    const simulateGame = new Chess();
-    // const mockedMoves = `1. e4 e5 2. Nf3 Bc5 $6 3. d4 $9 exd4 4. Nxd4 Nf6 5. Nf5 $6 g6 $2 6. Ng7+ Kf8 $1 7. Bh6 $1
-    // Kg8 $1 8. Bc4 $2 d5 $1 9. exd5 $6 Ng4 10. Qd2 Nxh6 11. Qxh6 Qe7+ $6 12. Kf1 $2 Bd4 $6 13.
-    // d6 $6 Qf6 14. Ne8 $2 Qxf2# 0-1`;
-
-    // const mockedMove = mockedMoves
-    //   .replace(/\r/, '')
-    //   .split(' ')
-    //   .filter((x) => x.trim())
-    //   .filter(
-    //     (x) =>
-    //       !x.includes('$') &&
-    //       !x.includes('.') &&
-    //       !['1-0', '0-1', '*', '1/2-1/2'].includes(x)
-    //   );
-    // console.log(mockedMove);
-    for (const move of data.Moves) {
-      simulateGame.move(move.replace('#', ''));
-    }
-    setMoveList(simulateGame.history({ verbose: true }) as any);
+    const lines = simulateGame(data.Moves);
+    setMoveList(lines as any);
   }, [data.Moves]);
+
   useEffect(() => {
     const handleKeyPress = (e: any) => {
       if (e.key === 'ArrowRight') {
@@ -225,7 +214,7 @@ export function GameViewer({ data }: IReplayProps) {
   };
   const handleDownload = () => {
     const element = document.createElement('a');
-    const file = new Blob([data.Pgn], { type: 'text/plain' });
+    const file = new Blob([data.pgn || data.Pgn], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
     element.download = data.Game.trim() + '.pgn'; // Change the filename as needed
     document.body.appendChild(element);
@@ -240,14 +229,13 @@ export function GameViewer({ data }: IReplayProps) {
 
   return (
     <div>
-      <div className="pt-3 text-center font-semibold">
-        {data.White} ({data.WhiteElo}) vs {data.Black} ({data.BlackElo}) -{' '}
-        {data.Result} in {data.Event} - {data.Year}
+      <div className="pt-1 text-center font-semibold">
+        {data.Event} - {data.Site} - {data.Year || data.year}
       </div>
-      <div className="pt-1 text-center mb-3">{data.ECO}</div>
+      <div className="pt-1 text-center">{data.ECO}</div>
 
       <div className="flex">
-        <div className="elo-bar" style={{ height: boardSize }}>
+        <div className="elo-bar my-10" style={{ height: boardSize }}>
           <span className="absolute text-xs p-1 text-white">{eloText}</span>
           <div
             className="w-full h-[50%] bg-black-100 transition-height duration-300 ease-linear"
@@ -260,13 +248,42 @@ export function GameViewer({ data }: IReplayProps) {
         </div>
 
         <div className="flex flex-col">
+          <div
+            className="text-xs font-semibold justify-center height-[38px]"
+            style={{ height: 40 }}
+          >
+            {data.Black} ({data.BlackElo})
+            <CapturedPieces
+              capturedPieces={currentMove?.captured_pieces.b}
+              color="w"
+              point={
+                currentMove?.captured_pieces?.bPoint -
+                currentMove?.captured_pieces?.wPoint
+              }
+            />
+          </div>
           <Chessboard
             position={fen}
             boardWidth={boardSize}
             customArrows={arrow}
             customArrowColor="#11d954"
           />
-          <div className="flex w-full justify-center mt-3 items-center">
+          <div
+            className="text-xs font-semibold height-[38px] mt-1"
+            style={{ height: 38 }}
+          >
+            {data.White} ({data.WhiteElo})
+            <CapturedPieces
+              capturedPieces={currentMove?.captured_pieces.w}
+              color="b"
+              point={
+                currentMove?.captured_pieces?.wPoint -
+                currentMove?.captured_pieces?.bPoint
+              }
+            />
+          </div>
+
+          <div className="flex w-full justify-center mt-3 items-center ">
             <button onClick={() => moveTo(0)} className="p-3 cursor-pointer">
               <LuChevronFirst />
             </button>
@@ -315,11 +332,15 @@ export function GameViewer({ data }: IReplayProps) {
           </div>
         </div>
         <div
-          className="ml-3 flex flex-col pl-2 w-[320px] overflow-y-scroll overflow-x-hidden"
-          style={{ maxHeight: height - 200 }}
+          className="ml-3 flex flex-col pl-2 w-[320px] overflow-y-scroll overflow-x-hidden mt-5"
+          style={{ maxHeight: boardSize + 100 }}
         >
-          {reviewData && reviewData.summary && (
+          {reviewData && reviewData.summary ? (
             <ReviewSummary data={reviewData.summary} result={data.Result} />
+          ) : (
+            <div className="p-3 text-3xl text-center font-bold border border-solid mb-4">
+              {data.Result || data.result}
+            </div>
           )}
           {pairMoves?.map(([white, black], index) => (
             <div

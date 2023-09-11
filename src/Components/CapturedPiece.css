@@ -1,0 +1,214 @@
+/* Copy from chess.com */
+.captured-pieces-cpiece {
+    background-image: url(/bundles/web/images/sprites/captured-pieces.png);
+    background-repeat: no-repeat;
+    background-size: 68.3rem 61.1rem;
+    display: inline-block;
+    margin-right: .3rem
+}
+
+.captured-pieces-score {
+    background-color: transparent;
+    background-image: none;
+    color: hsla(0,0%,100%,.5);
+    line-height: 1.5;
+    margin-left: .2rem;
+    padding: 0;
+    vertical-align: top
+}
+
+/*rtl:begin:ignore*/
+.captured-pieces-b-pawn,.captured-pieces-w-pawn {
+    height: 1.7rem;
+    width: 1.3rem
+}
+
+.captured-pieces-b-pawn {
+    background-position: 0 -59.4rem
+}
+
+.captured-pieces-w-pawn {
+    background-position: -36rem -59.4rem
+}
+
+.captured-pieces-b-2-pawns,.captured-pieces-w-2-pawns {
+    height: 1.7rem;
+    width: 2rem
+}
+
+.captured-pieces-b-2-pawns {
+    background-position: 0 -56.9rem
+}
+
+.captured-pieces-w-2-pawns {
+    background-position: -36rem -56.9rem
+}
+
+.captured-pieces-b-3-pawns,.captured-pieces-w-3-pawns {
+    height: 1.7rem;
+    width: 2.7rem
+}
+
+.captured-pieces-b-3-pawns {
+    background-position: 0 -54.4rem
+}
+
+.captured-pieces-w-3-pawns {
+    background-position: -36rem -54.4rem
+}
+
+.captured-pieces-b-4-pawns,.captured-pieces-w-4-pawns {
+    height: 1.7rem;
+    width: 3.4rem
+}
+
+.captured-pieces-b-4-pawns {
+    background-position: 0 -51.9rem
+}
+
+.captured-pieces-w-4-pawns {
+    background-position: -36rem -51.9rem
+}
+
+.captured-pieces-b-5-pawns,.captured-pieces-w-5-pawns {
+    height: 1.7rem;
+    width: 4.1rem
+}
+
+.captured-pieces-b-5-pawns {
+    background-position: 0 -49.4rem
+}
+
+.captured-pieces-w-5-pawns {
+    background-position: -36rem -49.4rem
+}
+
+.captured-pieces-b-6-pawns,.captured-pieces-w-6-pawns {
+    height: 1.7rem;
+    width: 4.8rem
+}
+
+.captured-pieces-b-6-pawns {
+    background-position: 0 -46.9rem
+}
+
+.captured-pieces-w-6-pawns {
+    background-position: -36rem -46.9rem
+}
+
+.captured-pieces-b-7-pawns,.captured-pieces-w-7-pawns {
+    height: 1.7rem;
+    width: 5.5rem
+}
+
+.captured-pieces-b-7-pawns {
+    background-position: 0 -44.4rem
+}
+
+.captured-pieces-w-7-pawns {
+    background-position: -36rem -44.4rem
+}
+
+.captured-pieces-b-8-pawns,.captured-pieces-w-8-pawns {
+    height: 1.7rem;
+    width: 6.2rem
+}
+
+.captured-pieces-b-8-pawns {
+    background-position: 0 -41.9rem
+}
+
+.captured-pieces-w-8-pawns {
+    background-position: -36rem -41.9rem
+}
+
+.captured-pieces-b-bishop,.captured-pieces-w-bishop {
+    height: 1.8rem;
+    width: 1.5rem
+}
+
+.captured-pieces-b-bishop {
+    background-position: -6.7rem -44.3rem
+}
+
+.captured-pieces-w-bishop {
+    background-position: -42.7rem -44.3rem
+}
+
+.captured-pieces-b-2-bishops,.captured-pieces-w-2-bishops {
+    height: 1.9rem;
+    width: 2.3rem
+}
+
+.captured-pieces-b-2-bishops {
+    background-position: -6.7rem -41.7rem
+}
+
+.captured-pieces-w-2-bishops {
+    background-position: -42.7rem -41.7rem
+}
+
+.captured-pieces-b-knight,.captured-pieces-w-knight {
+    height: 1.9rem;
+    width: 1.6rem
+}
+
+.captured-pieces-b-knight {
+    background-position: -9.5rem -44.2rem
+}
+
+.captured-pieces-w-knight {
+    background-position: -45.4rem -44.2rem
+}
+
+.captured-pieces-b-2-knights,.captured-pieces-w-2-knights {
+    height: 1.9rem;
+    width: 2.3rem
+}
+
+.captured-pieces-b-2-knights {
+    background-position: -9.5rem -41.7rem
+}
+
+.captured-pieces-w-2-knights {
+    background-position: -45.4rem -41.7rem
+}
+
+.captured-pieces-b-rook,.captured-pieces-w-rook {
+    height: 1.7rem;
+    width: 1.5rem
+}
+
+.captured-pieces-b-rook {
+    background-position: -12rem -44.4rem
+}
+
+.captured-pieces-w-rook {
+    background-position: -48rem -44.4rem
+}
+
+.captured-pieces-b-2-rooks,.captured-pieces-w-2-rooks {
+    height: 1.7rem;
+    width: 2.3rem
+}
+
+.captured-pieces-b-2-rooks {
+    background-position: -12rem -41.9rem
+}
+
+.captured-pieces-w-2-rooks {
+    background-position: -48rem -41.9rem
+}
+
+.captured-pieces-b-queen,.captured-pieces-w-queen {
+    height: 1.9rem;
+    width: 1.8rem
+}
+
+.captured-pieces-b-queen {
+    background-position: -14.5rem -41.7rem
+}
+
+.captured-pieces-w-queen {
+    background-position: -50.4rem -41.7rem
+}

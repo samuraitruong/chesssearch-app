@@ -30,7 +30,9 @@ export function HitCard({ hit, onHitClick }: HitProps) {
         </h2>
         <p>
           <MdOutlineSportsScore className="inline-block mr-1" />{' '}
-          <Highlight attribute="Result" hit={hit} /> <br />
+          <Highlight attribute="Result" hit={hit} />
+          <Highlight attribute="Result" hit={hit} />
+          <br />
           <BiCalendarEvent className="inline-block mr-1" />
           <Highlight attribute="Event" hit={hit} />
           <br />
@@ -38,6 +40,7 @@ export function HitCard({ hit, onHitClick }: HitProps) {
           <Highlight attribute="Site" hit={hit} /> <br />
           <BsFillCalendarDateFill className="inline-block mr-1" />
           <Highlight attribute="Date" hit={hit} />
+          <Highlight attribute="EventDate" hit={hit} />
         </p>
       </div>
     </div>

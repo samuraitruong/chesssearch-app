@@ -29,6 +29,7 @@ export function Hit({ hit, onHitClick }: HitProps) {
           <Highlight attribute="Site" hit={hit} /> <br />
           <BsFillCalendarDateFill className="inline-block mr-1" />
           <Highlight attribute="Date" hit={hit} />
+          <Highlight attribute="EventDate" hit={hit} />
         </p>
       </div>
       <div className="flex flex-col items-end w-[100px]">
