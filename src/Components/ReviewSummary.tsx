@@ -42,15 +42,35 @@ function Icon({ src }: IconProps) {
 }
 
 export function ReviewSummary({
-  data: { blackAccuracy, whiteAccuracy },
+  data: {
+    accuracy,
+    good,
+    inaccuracy,
+    mistake,
+    excellent,
+    best,
+    blunder,
+    briliant,
+    great,
+    book,
+  },
   result,
 }: any) {
+  const [wmistake, bmistake] = mistake;
+  const [wgood, bgood] = good;
+  const [winaccuracy, binaccuracy] = inaccuracy;
+  const [waccuracy, baccuracy] = accuracy;
+  const [wexcellent, bexcellent] = excellent;
+  const [wbest, bbest] = best;
+  const [wblunder, bblunder] = blunder;
+  const [wbriliant, bbriliant] = briliant;
+  const [wgreat, bgreat] = great;
   return (
     <div className="mb-3">
       <h2 className="text-center py-5 font-bold">Game Review</h2>
       <div className="flex justify-between mb-5">
         <div className="flex flex-col border border-solid border-gray-400 py-3 px-8 items-center">
-          <div className="text-3xl font-bold">{whiteAccuracy.toFixed(1)}</div>
+          <div className="text-3xl font-bold">{waccuracy.toFixed(1)}</div>
 
           <span className="text-gray-500">Accuracy</span>
         </div>
@@ -58,7 +78,7 @@ export function ReviewSummary({
           {result}
         </div>
         <div className="flex flex-col border border-solid border-gray-400 py-3 px-8 items-center">
-          <div className="text-3xl font-bold">{blackAccuracy.toFixed(1)}</div>
+          <div className="text-3xl font-bold">{baccuracy.toFixed(1)}</div>
           <span className="text-gray-500">Accuracy</span>
         </div>
       </div>
@@ -66,50 +86,50 @@ export function ReviewSummary({
       <div className="flex justify-between mb-2 flex-col">
         <LineItem
           type="Briliant"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={wbriliant}
+          blackCount={bbriliant}
           icon={<Icon src={BriliantIcon} />}
         />
         <LineItem
           type="Great Move"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={wgreat}
+          blackCount={bgreat}
           icon={<Icon src={Great} />}
         />
         <LineItem
           type="Best Move"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={wbest}
+          blackCount={bbest}
           icon={<Icon src={Best} />}
         />
         <LineItem
           type="Excellent"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={wexcellent}
+          blackCount={bexcellent}
           icon={<Icon src={Excellent} />}
         />
         <LineItem
           type="Good"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={wgood}
+          blackCount={bgood}
           icon={<Icon src={Good} />}
         />
         <LineItem
           type="Book"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={book[0]}
+          blackCount={book[1]}
           icon={<Icon src={Book} />}
         />
         <LineItem
           type="Inaccuracy"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={winaccuracy}
+          blackCount={binaccuracy}
           icon={<Icon src={Inaccuracy} />}
         />
         <LineItem
           type="Mistake"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={wmistake}
+          blackCount={bmistake}
           icon={<Icon src={Mistake} />}
         />
         <LineItem
@@ -120,8 +140,8 @@ export function ReviewSummary({
         />
         <LineItem
           type="Blunder"
-          whiteCount={0}
-          blackCount={0}
+          whiteCount={wblunder}
+          blackCount={bblunder}
           icon={<Icon src={BlunderIcon} />}
         />
       </div>

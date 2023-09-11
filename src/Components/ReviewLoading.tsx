@@ -25,6 +25,9 @@ export function ReviewLoading({ data }: ReviewLoadingProps) {
             text={`${percentage.toFixed(1)}%`}
           />
         </div>
+        <div className="text-gray-400">
+          Analysing game using Stockfish 16 with depth={data.depth}
+        </div>
       </div>
     </div>
   );

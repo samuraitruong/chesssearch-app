@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Chess, Move, Square } from 'chess.js';
 import { LuChevronFirst, LuDownload, LuChevronLast } from 'react-icons/lu';
@@ -7,11 +7,13 @@ import { GrPrevious, GrNext } from 'react-icons/gr';
 import { PiSpeakerHigh, PiSpeakerX } from 'react-icons/pi';
 import { useStockfish } from '../Hooks/useStockfish';
 import useViewport from '../Hooks/useViewport';
-import { StockfishLine } from '../Hooks/StockfishEngine';
+import { ReviewedMove, StockfishLine } from '../Hooks/StockfishEngine';
 import ReviewLoading from './ReviewLoading';
 import { MdReviews } from 'react-icons/md';
 import ReviewSummary from './ReviewSummary';
 import { partitionListIntoPairs } from '../Libs/Utils';
+
+const SF_DEPTH = 18;
 
 interface IReplayProps {
   data: {
@@ -60,9 +62,10 @@ export function GameViewer({ data }: IReplayProps) {
   const whiteElo = useRef<HTMLDivElement>();
   const [eloText, setEloText] = useState('0.0');
   const [arrow, setArrow] = useState<Square[][]>([]);
-  const [moveList, setMoveList] = useState<Move[]>([]);
+  const [moveList, setMoveList] = useState<ReviewedMove[]>([]);
   const { engine, gameData, reviewData, reviewStatus } = useStockfish();
-  const { height } = useViewport();
+  const { height, width } = useViewport();
+
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
   );
@@ -70,12 +73,15 @@ export function GameViewer({ data }: IReplayProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMute, setMute] = useState(false);
 
+  const boardSize = useMemo(
+    () => Math.min(height - 200, width - 400),
+    [width, height]
+  );
   function moveTo(index: number) {
-    console.log(index);
     if (index < 0) {
       return;
     }
-    if (index >= moveList.length - 1) {
+    if (index > moveList.length - 1) {
       return;
     }
     setCurrentMoveIndex(index);
@@ -87,7 +93,7 @@ export function GameViewer({ data }: IReplayProps) {
     }
   }, [reviewData]);
   useEffect(() => {
-    engine?.findBestMove(data.LastPosition);
+    engine?.findBestMove(data.LastPosition, SF_DEPTH);
   }, [engine, data.LastPosition]);
 
   useEffect(() => {
@@ -96,7 +102,7 @@ export function GameViewer({ data }: IReplayProps) {
       if (!isMute) {
         playSound(item);
       }
-      engine?.findBestMove(item.after, 18);
+      engine?.findBestMove(item.after, SF_DEPTH);
       if (item.best) {
         const bestmove: string = item.best.bestmove.bestmove || '';
         setArrow([
@@ -171,10 +177,25 @@ export function GameViewer({ data }: IReplayProps) {
 
   useEffect(() => {
     const simulateGame = new Chess();
+    // const mockedMoves = `1. e4 e5 2. Nf3 Bc5 $6 3. d4 $9 exd4 4. Nxd4 Nf6 5. Nf5 $6 g6 $2 6. Ng7+ Kf8 $1 7. Bh6 $1
+    // Kg8 $1 8. Bc4 $2 d5 $1 9. exd5 $6 Ng4 10. Qd2 Nxh6 11. Qxh6 Qe7+ $6 12. Kf1 $2 Bd4 $6 13.
+    // d6 $6 Qf6 14. Ne8 $2 Qxf2# 0-1`;
+
+    // const mockedMove = mockedMoves
+    //   .replace(/\r/, '')
+    //   .split(' ')
+    //   .filter((x) => x.trim())
+    //   .filter(
+    //     (x) =>
+    //       !x.includes('$') &&
+    //       !x.includes('.') &&
+    //       !['1-0', '0-1', '*', '1/2-1/2'].includes(x)
+    //   );
+    // console.log(mockedMove);
     for (const move of data.Moves) {
-      simulateGame.move(move);
+      simulateGame.move(move.replace('#', ''));
     }
-    setMoveList(simulateGame.history({ verbose: true }));
+    setMoveList(simulateGame.history({ verbose: true }) as any);
   }, [data.Moves]);
   useEffect(() => {
     const handleKeyPress = (e: any) => {
@@ -212,9 +233,10 @@ export function GameViewer({ data }: IReplayProps) {
 
   const pairMoves = partitionListIntoPairs(moveList);
 
-  const getClassName = (m: any) => {
-    return 'move-classification-' + m.review?.classification || '';
+  const getClassName = (m: ReviewedMove) => {
+    return 'move-classification-' + m.playedMove?.classification || '';
   };
+
   return (
     <div>
       <div className="pt-3 text-center font-semibold">
@@ -224,7 +246,7 @@ export function GameViewer({ data }: IReplayProps) {
       <div className="pt-1 text-center mb-3">{data.ECO}</div>
 
       <div className="flex">
-        <div className="elo-bar" style={{ height: height - 200 }}>
+        <div className="elo-bar" style={{ height: boardSize }}>
           <span className="absolute text-xs p-1 text-white">{eloText}</span>
           <div
             className="w-full h-[50%] bg-black-100 transition-height duration-300 ease-linear"
@@ -239,7 +261,7 @@ export function GameViewer({ data }: IReplayProps) {
         <div className="flex flex-col">
           <Chessboard
             position={fen}
-            boardWidth={height - 200}
+            boardWidth={boardSize}
             customArrows={arrow}
             customArrowColor="#11d954"
           />
@@ -284,7 +306,7 @@ export function GameViewer({ data }: IReplayProps) {
             </button>
 
             <button
-              onClick={() => engine?.gameReview(moveList, 12)}
+              onClick={() => engine?.reviewGame(moveList, SF_DEPTH)}
               className="p-3 cursor-pointer"
             >
               <MdReviews />
@@ -314,7 +336,10 @@ export function GameViewer({ data }: IReplayProps) {
                 } ${getClassName(white)}`}
                 onClick={() => moveTo(index * 2)}
               >
-                {white?.san}
+                {white?.san} |{' '}
+                {`${white.playedMove?.accuracy || ''} - ${
+                  white.best?.accuracy || ''
+                }`}
               </a>
               <a
                 className={`cursor-pointer pl-3 flex-1 hover:bg-slate-600 hover:text-white ${

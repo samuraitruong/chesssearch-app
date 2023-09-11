@@ -3,15 +3,27 @@ import { calculateAccuracy, calculateWinChange } from '../Libs/Elevation';
 import asyncPool from 'tiny-async-pool';
 import _ from 'lodash';
 
-interface ReviewdMove extends Move {
-  best: ReviewData;
-  playedMove: ReviewData;
+export enum MoveClassification {
+  good = 'good',
+  best = 'best',
+  miss = 'miss',
+  blunder = 'blunder',
+  great = 'great',
+  excellent = 'excellent',
+  mistake = 'mistake',
+  inaccuracy = 'inaccuracy',
+  briliant = 'briliant',
+  book = 'book',
+}
+export interface ReviewedMove extends Move {
+  best: ReviewedMoveOutput;
+  playedMove: ReviewedMoveOutput;
 
   index: number;
 }
 // https://lichess.org/page/accuracy
 
-interface ReviewData extends EngineData {
+interface ReviewedMoveOutput extends BestMoveOutput {
   accuracy?: number;
   classification?: string;
 }
@@ -26,7 +38,7 @@ export interface StockfishLine {
     type: string;
   };
 }
-export interface EngineData {
+export interface BestMoveOutput {
   position?: string;
   bestmove?: {
     bestmove: string;
@@ -39,17 +51,22 @@ export interface ReviewStatus {
   done: boolean;
   total: number;
   current: number;
+  depth: number;
 }
 export interface GameReview {
-  moves: ReviewdMove[];
+  moves: ReviewedMove[];
   summary: {
-    whiteAccuracy: number;
-    blackAccuracy: number;
+    accuracy: number[];
+    mistake: number[];
+    inaccuracy: number[];
+    best: number[];
+    good: number[];
+    blunder: number[];
   };
 }
 export class StockfishEngine {
   private outputs: string[] = [];
-  private data: EngineData = { lines: [] };
+  private data: BestMoveOutput = { lines: [] };
   private engine: Worker;
   constructor(
     private emitter: (
@@ -70,8 +87,10 @@ export class StockfishEngine {
     this.setOption('Clear', 'Hash');
     this.setOption('Hash', 128);
   }
+
   processMessage(event: MessageEvent) {
     const line = event.data;
+    // console.log(line);
 
     const excluded = [
       'info string classical evaluation enabled.',
@@ -80,7 +99,9 @@ export class StockfishEngine {
     if (excluded.includes(line)) {
       return;
     }
-    // console.log(line);
+    // if (line.includes('currmovenumber')) {
+    //   console.log(line);
+    // }
     this.outputs.push(line);
     this.parseBestMove(line);
     this.parseInfoLine(line);
@@ -152,6 +173,7 @@ export class StockfishEngine {
   }
 
   async reset() {
+    await this.sendUci('stop');
     this.data = { lines: [] };
     this.outputs = [];
   }
@@ -163,8 +185,9 @@ export class StockfishEngine {
     normal.sort((a, b) => b.score.value - a.score.value);
 
     this.data.lines = [...mates, ...normal];
-    if (this.data) this.emitter('bestmove', this.data);
-    return this.data;
+    const clonedData = { ...this.data };
+    if (this.data) this.emitter('bestmove', clonedData);
+    return clonedData;
   }
   setOption(key: string, value: string | number) {
     this.sendUci(`setoption name ${key} value ${value}\n`);
@@ -178,96 +201,68 @@ export class StockfishEngine {
     this.sendUci('isready');
     await this.waitFor('readyok');
   }
+
   async findBestMove(position: string, depth = 18) {
     const start = Date.now();
-    this.reset();
-    this.sendUci('stop');
+    await this.reset();
     await this.waitForReady();
+    console.log('-----------------findBestMove-----------------');
+    // console.log('before', this.data);
     this.setOption('UCI_AnalyseMode', 'false');
     this.data.position = position;
     this.sendUci('ucinewgame');
     this.sendUci('position fen ' + position);
     this.sendUci('go depth ' + depth);
     await this.waitFor('bestmove');
-    console.log('bestmove found in %d ms', Date.now() - start);
+    // console.log('after', this.data);
+    // await this.waitFor('bestmove');
+    console.log(
+      'findBestMove found in %d ms depth=%s',
+      Date.now() - start,
+      depth
+    );
     return this.postEngineRun();
   }
 
   async searchMove(position: string, move: string, depth = 18) {
+    console.log('-----------------searchMove-----------------');
     const start = Date.now();
-    this.sendUci('stop');
-    this.reset();
+    await this.reset();
     await this.waitForReady();
     this.data.position = position;
     this.sendUci('ucinewgame');
     this.sendUci('position fen ' + position);
-    this.sendUci(`go infinity searchmoves ${move}`);
-    await this.waitForDepth(depth);
+    this.sendUci(`go depth ${depth} searchmoves ${move}`);
+    await this.waitFor('bestmove');
     this.sendUci('stop');
-    console.log('bestmove found in %d ms', Date.now() - start);
+    console.log('searchMovefound in %d ms depth=%s', Date.now() - start, depth);
     return this.postEngineRun();
   }
 
-  moveClassification(move: ReviewdMove, prevMove: ReviewdMove) {
-    let classification = 'book';
+  moveClassification(move: ReviewedMove, prevMove: ReviewedMove) {
+    const classification = 'book';
     let accuracy = 100;
 
     if (prevMove) {
-      const bestMoveLine = move.playedMove.lines?.[0]; // actual move
-      const bestPreviousMoveLine = prevMove.playedMove.lines?.[0]; // actual move
-      if (bestMoveLine?.score)
-        accuracy =
-          103.1668 *
-            Math.exp(
-              -0.04354 *
-                ((bestPreviousMoveLine?.winChance || 0) -
-                  (bestMoveLine?.winChance || 0))
-            ) -
-          3.1669;
-
-      if (accuracy < 99) {
-        classification = 'great';
-      }
-      if (accuracy < 95) {
-        classification = 'excellent';
-      }
-
-      if (accuracy < 80) {
-        classification = 'good';
-      }
-
-      if (accuracy < 70) {
-        classification = 'inaccuracy';
-      }
-      if (accuracy < 50) {
-        classification = 'mistake';
-      }
-
-      if (accuracy < 30) {
-        classification = 'blunder';
-      }
+      const currentPlayedMove = move.best.lines?.[0]; // actual move
+      const oppomentPlayedMove = prevMove.best.lines?.[0]; // actual move
+      if (currentPlayedMove?.score)
+        accuracy = calculateAccuracy(
+          oppomentPlayedMove?.winChance || 0,
+          currentPlayedMove?.winChance || 0
+        );
     }
-    // if (bestMoveLine) {
-    //   const { bestmove } = move.review.bestmove.bestmove;
-    //   if (yourMove) {
-    //     const diff = yourMove.score.value - bestMoveLine.score.value;
 
-    //     if (diff < -20) classification = 'excellent';
-    //     if (diff < -50) classification = 'good';
-    //     if (diff < -100) classification = 'inaccuracy';
-    //     if (diff < -300) classification = 'mistake';
-    //     if (diff < -400) classification = 'blunder';
-
-    //     console.log('diff', diff, move.lan, move.san, classification);
-    //   }
-
-    //   move.review.bestElo = bestMoveLine.score.value;
-    //   move.review.yourElo = yourMove?.score.value;
-
-    //   if (bestmove === move.lan) {
-    //     classification = 'best';
-    //   }
-    // }
+    const mappings = [
+      [-40, MoveClassification.blunder],
+      [-30, MoveClassification.mistake],
+      [-20, MoveClassification.inaccuracy],
+      [-10, MoveClassification.good],
+      [-5, MoveClassification.excellent],
+      [0, MoveClassification.best],
+      [30, MoveClassification.great],
+      [50, MoveClassification.briliant],
+    ];
     if (move.best) {
       move.best.accuracy = accuracy;
       move.best.classification = classification;
@@ -275,16 +270,27 @@ export class StockfishEngine {
         move.best.lines[0]?.winChance || 0,
         move.playedMove.lines[0]?.winChance || 0
       );
+      const diff = move.playedMove.accuracy - move.best.accuracy;
+      // move.playedMove.diff = diff;
+      for (const [diffV, cl] of mappings) {
+        if (diff <= +diffV) {
+          move.playedMove.classification = cl as string;
+          break;
+        }
+      }
+      if (!move.playedMove.classification) {
+        move.playedMove.classification = MoveClassification.book;
+      }
     }
     return move;
   }
 
-  async gameReview(moves: Move[], depth = 18) {
+  async reviewGame(moves: Move[], depth = 18) {
     const moveWithIndex = moves.map((x, index) => ({ ...x, index }));
     //  loop throught all the moves and find the bestmove
     this.sendUci('stop');
     // this.setOption('UCI_AnalyseMode', 'true');
-    const analysysData: ReviewdMove[] = [];
+    const analysysData: ReviewedMove[] = [];
     let current = 0;
     const started = Date.now();
     this.emitter('review-status', {
@@ -292,15 +298,17 @@ export class StockfishEngine {
       current: 0,
       move: null,
       elapsed: 0,
+      depth,
       done: false,
     });
     const enginePool: StockfishEngine[] = [];
     const findBestMoveInForkedEngine = async (move: Move) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const self =
-        enginePool.pop() || new StockfishEngine((_type, _data) => {});
+        enginePool.shift() || new StockfishEngine((_type, _data) => {});
       self.setOption('UCI_AnalyseMode', 'true');
       const best = await self.findBestMove(move.before, depth);
+
       // console.log(move.before + ' moves ' + move.lan);
       const playedMove = await self.searchMove(move.before, move.lan, depth);
 
@@ -308,7 +316,7 @@ export class StockfishEngine {
       return { best, ...move, playedMove };
     };
     for await (const result of asyncPool(
-      12,
+      8,
       moveWithIndex,
       findBestMoveInForkedEngine
     )) {
@@ -318,6 +326,7 @@ export class StockfishEngine {
       this.emitter('review-status', {
         total: moves.length,
         current,
+        depth,
         move: result,
         elapsed: Date.now() - started,
         done: current >= moves.length,
@@ -332,12 +341,26 @@ export class StockfishEngine {
     }
     const whiteMoves = analysysData.filter((x) => x.color === 'w');
     const blackMoves = analysysData.filter((x) => x.color === 'b');
+
+    const countMove = (e: ReviewedMove[], classification: string) => {
+      return _.filter(e, (x) => x.playedMove.classification === classification)
+        .length;
+    };
     classificationMoves.sort((a, b) => a.index - b.index);
     const reviewedData = {
       moves: classificationMoves,
       summary: {
-        whiteAccuracy: _.meanBy(whiteMoves, (x) => x.playedMove.accuracy),
-        blackAccuracy: _.meanBy(blackMoves, (x) => x.playedMove.accuracy),
+        accuracy: [
+          _.meanBy(whiteMoves, (x) => x.playedMove.accuracy),
+          _.meanBy(blackMoves, (x) => x.playedMove.accuracy),
+        ],
+        ...Object.values(MoveClassification).reduce(
+          (acc, key) => ({
+            ...acc,
+            [key]: [countMove(whiteMoves, key), countMove(blackMoves, key)],
+          }),
+          {}
+        ),
       },
     };
     this.emitter('review', reviewedData);
