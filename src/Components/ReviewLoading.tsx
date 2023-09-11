@@ -26,7 +26,7 @@ export function ReviewLoading({ data }: ReviewLoadingProps) {
           />
         </div>
         <div className="text-gray-400">
-          Analysing game using Stockfish 16 with depth={data.depth}
+          Stockfish 16 (Depth {data.depth}) Analysis
         </div>
       </div>
     </div>
