@@ -1,22 +1,23 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chessboard } from 'react-chessboard';
-import { Move, Square } from 'chess.js';
+import { Square } from 'chess.js';
 import { LuChevronFirst, LuDownload, LuChevronLast } from 'react-icons/lu';
 import { BsPlayFill, BsStopFill } from 'react-icons/bs';
 import { GrPrevious, GrNext } from 'react-icons/gr';
 import { PiSpeakerHigh, PiSpeakerX } from 'react-icons/pi';
+import { MdReviews } from 'react-icons/md';
 import { useStockfish } from '../Hooks/useStockfish';
 import useViewport from '../Hooks/useViewport';
 import { ReviewedMove, StockfishLine } from '../Hooks/StockfishEngine';
 import ReviewLoading from './ReviewLoading';
-import { MdReviews } from 'react-icons/md';
 import ReviewSummary from './ReviewSummary';
 import { partitionListIntoPairs, simulateGame } from '../Libs/Utils';
 import CapturedPieces from './CapaturedPieces';
+import { playSound } from '../Libs/Media';
 
 const SF_DEPTH = 18;
 
-interface IReplayProps {
+interface GameViewerProps {
   data: {
     Game: string;
     White: string;
@@ -28,6 +29,7 @@ interface IReplayProps {
     Pgn: string;
     pgn?: string;
     Moves: string[];
+    moves?: string[];
     LastPosition: string;
     Year: string;
     Result: string;
@@ -35,35 +37,12 @@ interface IReplayProps {
     fen?: string;
     result?: string;
     year?: string;
+    game?: string;
   };
 }
 
-const playSound = (move: Move) => {
-  let audioType = move.color === 'w' ? 'move-self' : 'move-opponent';
-  if (move.san.includes('x')) {
-    audioType = 'capture';
-  }
-
-  if (move.san.includes('+')) {
-    audioType = 'move-check';
-  }
-  if (move.san.includes('=')) {
-    audioType = 'promote';
-  }
-  if (move.san.includes('-')) {
-    audioType = 'castle';
-  }
-
-  if (move.san.includes('#')) {
-    audioType = 'game-end';
-  }
-
-  const fileCDN =
-    'https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default';
-  new Audio(`${fileCDN}/${audioType}.mp3`).play();
-};
-export function GameViewer({ data }: IReplayProps) {
-  const [currentMove, setCurrentMove] = useState<any>();
+export function GameViewer({ data }: GameViewerProps) {
+  const [currentMove, setCurrentMove] = useState<ReviewedMove>();
   const blackElo = useRef<HTMLDivElement>();
   const whiteElo = useRef<HTMLDivElement>();
   const [eloText, setEloText] = useState('0.0');
@@ -71,7 +50,6 @@ export function GameViewer({ data }: IReplayProps) {
   const [moveList, setMoveList] = useState<ReviewedMove[]>([]);
   const { engine, gameData, reviewData, reviewStatus } = useStockfish();
   const { height, width } = useViewport();
-
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
   );
@@ -98,19 +76,20 @@ export function GameViewer({ data }: IReplayProps) {
       setMoveList(reviewData.moves);
     }
   }, [reviewData]);
+
   useEffect(() => {
     engine?.findBestMove(data.fen || data.LastPosition, SF_DEPTH);
   }, [engine, data.LastPosition, data.fen]);
 
   useEffect(() => {
-    const item: any = moveList[currentMoveIndex];
+    const item: ReviewedMove = moveList[currentMoveIndex];
     if (item) {
       if (!isMute) {
         playSound(item);
       }
       engine?.findBestMove(item.after, SF_DEPTH);
       if (item.best) {
-        const bestmove: string = item.best.bestmove.bestmove || '';
+        const bestmove: string = item.best?.bestmove?.bestmove || '';
         setArrow([
           [
             bestmove.substring(0, 2) as Square,
@@ -125,9 +104,9 @@ export function GameViewer({ data }: IReplayProps) {
       setIsPlaying(false);
     }
   }, [currentMoveIndex, isMute, moveList]);
+
   useEffect(() => {
     if (gameData && gameData.bestmove && gameData.position) {
-      // console.log('Update Elo bar', gameData);
       const [, player] = gameData.position.split(' ');
       const bestMove = gameData.lines.find((x: StockfishLine) =>
         x.pv.startsWith(gameData.bestmove.bestmove)
@@ -136,17 +115,17 @@ export function GameViewer({ data }: IReplayProps) {
         return;
       }
       const score = bestMove.score.value / 100;
-      // console.log('player', bestMove, player, score);
 
-      let p = Math.min(50, (score / 8) * 50);
-      p = Math.max(-50, p);
-      p = bestMove.winChance;
+      // let p = Math.min(50, (score / 8) * 50);
+      // p = Math.max(-50, p);
+      let p = bestMove.winChance;
       if (bestMove.score.type === 'mate') {
         p = (100 * bestMove.score.value) / Math.abs(bestMove.score.value);
         setEloText(`M${bestMove.score.value.toFixed(0)}`);
       } else {
         setEloText(Math.abs(score).toFixed(1));
       }
+
       if (whiteElo.current && blackElo.current) {
         if (player === 'w') {
           whiteElo.current.style.height = p + '%';
@@ -203,6 +182,7 @@ export function GameViewer({ data }: IReplayProps) {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [currentMoveIndex]);
+
   const togglePlay = () => {
     if (!isPlaying && currentMoveIndex >= data.Moves.length - 1) {
       setCurrentMoveIndex(0);
@@ -216,7 +196,7 @@ export function GameViewer({ data }: IReplayProps) {
     const element = document.createElement('a');
     const file = new Blob([data.pgn || data.Pgn], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = data.Game.trim() + '.pgn'; // Change the filename as needed
+    element.download = (data.game || data.Game).trim() + '.pgn'; // Change the filename as needed
     document.body.appendChild(element);
     element.click();
   };

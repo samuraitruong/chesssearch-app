@@ -8,7 +8,7 @@ interface CapturedPiecesProps {
   point: number;
 }
 function condensePiece(inputs: string[]) {
-  const mappings: any = {
+  const mappings: { [x: string]: string } = {
     p: 'pawn',
     b: 'bishop',
     n: 'knight',
@@ -29,7 +29,6 @@ function CapturedPieces({
   point = 0,
 }: CapturedPiecesProps) {
   const [pieces, setPieces] = useState<string[]>([]);
-  console.log(color, capturedPieces);
   useEffect(() => {
     setPieces(condensePiece(capturedPieces));
   }, [capturedPieces]);

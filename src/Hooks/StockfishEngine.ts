@@ -15,10 +15,11 @@ export enum MoveClassification {
   briliant = 'briliant',
   book = 'book',
 }
+
 export interface ReviewedMove extends Move {
   best: ReviewedMoveOutput;
   playedMove: ReviewedMoveOutput;
-
+  captured_pieces: any;
   index: number;
 }
 // https://lichess.org/page/accuracy
@@ -68,14 +69,19 @@ export class StockfishEngine {
   private outputs: string[] = [];
   private data: BestMoveOutput = { lines: [] };
   private engine: Worker;
+  private isTerminated = false;
   constructor(
     private emitter: (
       type: 'review' | 'bestmove' | 'review-status',
       data: any
     ) => void
   ) {
-    this.engine = new Worker('/sf/stockfish.js#stockfish.wasm');
+    this.engine = this.initEngine();
+  }
 
+  private initEngine() {
+    this.engine = new Worker('/sf/stockfish.js#stockfish.wasm');
+    this.isTerminated = false;
     this.engine.onmessage = this.processMessage.bind(this);
 
     this.sendUci('uci');
@@ -86,6 +92,7 @@ export class StockfishEngine {
     this.setOption('Threads', 8);
     this.setOption('Clear', 'Hash');
     this.setOption('Hash', 128);
+    return this.engine;
   }
 
   processMessage(event: MessageEvent) {
@@ -131,6 +138,10 @@ export class StockfishEngine {
   }
 
   sendUci(command: string) {
+    if (this.isTerminated) {
+      this.initEngine();
+    }
+
     // console.log('command "%s"', command);
     this.engine.postMessage(command);
   }
@@ -189,6 +200,7 @@ export class StockfishEngine {
     if (this.data) this.emitter('bestmove', clonedData);
     return clonedData;
   }
+
   setOption(key: string, value: string | number) {
     this.sendUci(`setoption name ${key} value ${value}\n`);
   }
@@ -196,6 +208,7 @@ export class StockfishEngine {
     this.sendUci('stop');
     this.sendUci('quit');
     this.engine.terminate();
+    this.isTerminated = true;
   }
   async waitForReady() {
     this.sendUci('isready');
@@ -206,16 +219,12 @@ export class StockfishEngine {
     const start = Date.now();
     await this.reset();
     await this.waitForReady();
-    console.log('-----------------findBestMove-----------------');
-    // console.log('before', this.data);
     this.setOption('UCI_AnalyseMode', 'false');
     this.data.position = position;
     this.sendUci('ucinewgame');
     this.sendUci('position fen ' + position);
     this.sendUci('go depth ' + depth);
     await this.waitFor('bestmove');
-    // console.log('after', this.data);
-    // await this.waitFor('bestmove');
     console.log(
       'findBestMove found in %d ms depth=%s',
       Date.now() - start,
@@ -225,7 +234,6 @@ export class StockfishEngine {
   }
 
   async searchMove(position: string, move: string, depth = 18) {
-    console.log('-----------------searchMove-----------------');
     const start = Date.now();
     await this.reset();
     await this.waitForReady();
@@ -287,7 +295,6 @@ export class StockfishEngine {
 
   async reviewGame(moves: Move[], depth = 18) {
     const moveWithIndex = moves.map((x, index) => ({ ...x, index }));
-    //  loop throught all the moves and find the bestmove
     this.sendUci('stop');
     // this.setOption('UCI_AnalyseMode', 'true');
     const analysysData: ReviewedMove[] = [];
@@ -309,7 +316,6 @@ export class StockfishEngine {
       self.setOption('UCI_AnalyseMode', 'true');
       const best = await self.findBestMove(move.before, depth);
 
-      // console.log(move.before + ' moves ' + move.lan);
       const playedMove = await self.searchMove(move.before, move.lan, depth);
 
       enginePool.push(self);

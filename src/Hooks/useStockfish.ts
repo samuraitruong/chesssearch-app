@@ -11,6 +11,7 @@ export function useStockfish() {
 
   useEffect(() => {
     const initStockfishWorkerEngine = async () => {
+      console.log('initial new engine');
       setEngine(
         new StockfishEngine((type, data) => {
           if (type === 'review') {
@@ -28,10 +29,12 @@ export function useStockfish() {
         })
       );
     };
+
     if (!engine) {
       initStockfishWorkerEngine();
     }
     return () => {
+      console.log('kill the engine');
       if (engine) engine.quit();
     };
   }, [engine]);

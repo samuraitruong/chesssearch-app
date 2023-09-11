@@ -7,7 +7,7 @@ import { MiniBoard } from './MiniBoard';
 
 type HitProps = {
   hit: Hit;
-  onHitClick: (item: any) => void;
+  onHitClick: (item: Hit) => void;
 };
 
 export function HitCard({ hit, onHitClick }: HitProps) {
@@ -31,7 +31,7 @@ export function HitCard({ hit, onHitClick }: HitProps) {
         <p>
           <MdOutlineSportsScore className="inline-block mr-1" />{' '}
           <Highlight attribute="Result" hit={hit} />
-          <Highlight attribute="Result" hit={hit} />
+          <Highlight attribute="result" hit={hit} />
           <br />
           <BiCalendarEvent className="inline-block mr-1" />
           <Highlight attribute="Event" hit={hit} />
