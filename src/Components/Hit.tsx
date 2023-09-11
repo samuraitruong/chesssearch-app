@@ -32,7 +32,7 @@ export function Hit({ hit, onHitClick }: HitProps) {
         </p>
       </div>
       <div className="flex flex-col items-end w-[100px]">
-        <MiniBoard position={hit.LastPosition} />
+        <MiniBoard position={hit.fen || hit.LastPosition} />
       </div>
     </div>
   );

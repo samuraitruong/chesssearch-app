@@ -30,6 +30,7 @@ interface IReplayProps {
     Year: string;
     Result: string;
     ECO: string;
+    fen?: string;
   };
 }
 
@@ -69,7 +70,7 @@ export function GameViewer({ data }: IReplayProps) {
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
   );
-  const [fen, setFen] = useState(data.LastPosition);
+  const [fen, setFen] = useState(data.fen || data.LastPosition);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMute, setMute] = useState(false);
 
@@ -93,8 +94,8 @@ export function GameViewer({ data }: IReplayProps) {
     }
   }, [reviewData]);
   useEffect(() => {
-    engine?.findBestMove(data.LastPosition, SF_DEPTH);
-  }, [engine, data.LastPosition]);
+    engine?.findBestMove(data.fen || data.LastPosition, SF_DEPTH);
+  }, [engine, data.LastPosition, data.fen]);
 
   useEffect(() => {
     const item: any = moveList[currentMoveIndex];
@@ -336,10 +337,11 @@ export function GameViewer({ data }: IReplayProps) {
                 } ${getClassName(white)}`}
                 onClick={() => moveTo(index * 2)}
               >
-                {white?.san} |{' '}
+                {white?.san}
+                {/* |{' '}
                 {`${white.playedMove?.accuracy || ''} - ${
                   white.best?.accuracy || ''
-                }`}
+                }`} */}
               </a>
               <a
                 className={`cursor-pointer pl-3 flex-1 hover:bg-slate-600 hover:text-white ${

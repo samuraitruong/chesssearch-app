@@ -19,6 +19,7 @@ import { Modal } from './Components/Modal';
 import { GameViewer } from './Components/GameViewer';
 import { HitCard } from './Components/HitCard';
 import { TableHit } from './Components/TableHit';
+import algoliasearch from 'algoliasearch';
 
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   server: {
@@ -38,19 +39,32 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
     exclude_fields: 'embedding',
   },
 });
-const searchClient = typesenseInstantsearchAdapter.searchClient;
+
+const algoliaSearchClient = import.meta.env.VITE_ALGOLIA_APP_ID
+  ? algoliasearch(
+      import.meta.env.VITE_ALGOLIA_APP_ID,
+      import.meta.env.VITE_ALGOLIA_KEY
+    )
+  : undefined;
+
+const searchClient =
+  algoliaSearchClient || typesenseInstantsearchAdapter.searchClient;
 
 export default function App() {
-  const [game, setGame] = useState();
+  const [game, setGame] = useState<any>();
   const [displayMode, setDisplayMode] = useState<any>('card');
 
   const handleHitClick = (item: any) => {
     setGame(item);
   };
-  const indexName = import.meta.env.VITE_INDEX_NAME || 'chessgames';
+  const indexName =
+    import.meta.env.VITE_ALGOLIA_INDEX ||
+    import.meta.env.VITE_INDEX_NAME ||
+    'chessgames';
   const handleModeChange = (type: any) => {
     setDisplayMode(type);
   };
+  const yearAttribute = import.meta.env.VITE_ALGOLIA_APP_ID ? 'year' : 'Year';
   return (
     <InstantSearch
       searchClient={searchClient}
@@ -73,7 +87,7 @@ export default function App() {
 
           <Panel header="Year">
             <RefinementList
-              attribute="Year"
+              attribute={yearAttribute}
               searchable={true}
               // translations={{
               //   placeholder: 'Search for brands…',
@@ -172,7 +186,15 @@ export default function App() {
       </div>
       {game && (
         <Modal onClose={() => setGame(undefined)}>
-          <GameViewer data={game}></GameViewer>
+          <GameViewer
+            data={
+              {
+                ...game,
+                Moves: game.Moves || game.moves,
+                ECO: game.eco || game.ECO,
+              } as any
+            }
+          ></GameViewer>
         </Modal>
       )}
     </InstantSearch>
