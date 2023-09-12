@@ -14,6 +14,7 @@ import ReviewSummary from './ReviewSummary';
 import { partitionListIntoPairs, simulateGame } from '../Libs/Utils';
 import CapturedPieces from './CapaturedPieces';
 import { playSound } from '../Libs/Media';
+import { CustomSquareRenderer } from './CustomSquareRenderer';
 
 const SF_DEPTH = import.meta.env.VITE_SF_DEPTH || 18;
 
@@ -250,6 +251,9 @@ export function GameViewer({ data }: GameViewerProps) {
             boardWidth={boardSize}
             customArrows={arrow}
             customArrowColor="#11d954"
+            customSquare={
+              currentMove?.playedMove && CustomSquareRenderer(currentMove)
+            }
           />
           <div
             className="text-xs font-semibold height-[38px] mt-1"

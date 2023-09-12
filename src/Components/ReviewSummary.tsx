@@ -1,15 +1,6 @@
 /// <reference types="vite-svg-loader" />
 import { ReactNode } from 'react';
-import BriliantIcon from './icons/Briliant.svg?url';
-import BlunderIcon from './icons/Blunder.svg?url';
-import MissIcon from './icons/Miss.svg?url';
-import Mistake from './icons/Mistake.svg?url';
-import Inaccuracy from './icons/Inaccuracy.svg?url';
-import Good from './icons/Good.svg?url';
-import Book from './icons/Book.svg?url';
-import Great from './icons/Great.svg?url';
-import Best from './icons/Best.svg?url';
-import Excellent from './icons/Excellent.svg?url';
+import { MoveClassificationIcons } from '../Libs/Constants';
 
 interface LineItemProps {
   type: string;
@@ -86,61 +77,61 @@ export function ReviewSummary({ data, result }: any) {
           type="Briliant"
           whiteCount={wbriliant}
           blackCount={bbriliant}
-          icon={<Icon src={BriliantIcon} />}
+          icon={<Icon src={MoveClassificationIcons.briliant} />}
         />
         <LineItem
           type="Great Move"
           whiteCount={wgreat}
           blackCount={bgreat}
-          icon={<Icon src={Great} />}
+          icon={<Icon src={MoveClassificationIcons.great} />}
         />
         <LineItem
           type="Best Move"
           whiteCount={wbest}
           blackCount={bbest}
-          icon={<Icon src={Best} />}
+          icon={<Icon src={MoveClassificationIcons.best} />}
         />
         <LineItem
           type="Excellent"
           whiteCount={wexcellent}
           blackCount={bexcellent}
-          icon={<Icon src={Excellent} />}
+          icon={<Icon src={MoveClassificationIcons.excellent} />}
         />
         <LineItem
           type="Good"
           whiteCount={wgood}
           blackCount={bgood}
-          icon={<Icon src={Good} />}
+          icon={<Icon src={MoveClassificationIcons.good} />}
         />
         <LineItem
           type="Book"
           whiteCount={book[0]}
           blackCount={book[1]}
-          icon={<Icon src={Book} />}
+          icon={<Icon src={MoveClassificationIcons.book} />}
         />
         <LineItem
           type="Inaccuracy"
           whiteCount={winaccuracy}
           blackCount={binaccuracy}
-          icon={<Icon src={Inaccuracy} />}
+          icon={<Icon src={MoveClassificationIcons.inaccuracy} />}
         />
         <LineItem
           type="Mistake"
           whiteCount={wmistake}
           blackCount={bmistake}
-          icon={<Icon src={Mistake} />}
+          icon={<Icon src={MoveClassificationIcons.mistake} />}
         />
         <LineItem
           type="Miss"
           whiteCount={0}
           blackCount={0}
-          icon={<Icon src={MissIcon} />}
+          icon={<Icon src={MoveClassificationIcons.miss} />}
         />
         <LineItem
           type="Blunder"
           whiteCount={wblunder}
           blackCount={bblunder}
-          icon={<Icon src={BlunderIcon} />}
+          icon={<Icon src={MoveClassificationIcons.blunder} />}
         />
       </div>
     </div>

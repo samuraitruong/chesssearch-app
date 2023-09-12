@@ -2,19 +2,7 @@ import { Move } from 'chess.js';
 import { calculateAccuracy, calculateWinChange } from '../Libs/Elevation';
 import asyncPool from 'tiny-async-pool';
 import _ from 'lodash';
-
-export enum MoveClassification {
-  good = 'good',
-  best = 'best',
-  miss = 'miss',
-  blunder = 'blunder',
-  great = 'great',
-  excellent = 'excellent',
-  mistake = 'mistake',
-  inaccuracy = 'inaccuracy',
-  briliant = 'briliant',
-  book = 'book',
-}
+import { MoveClassification } from '../Libs/Constants';
 
 export interface ReviewedMove extends Move {
   best: ReviewedMoveOutput;
@@ -263,13 +251,13 @@ export class StockfishEngine {
 
     const mappings = [
       [-40, MoveClassification.blunder],
-      [-30, MoveClassification.mistake],
-      [-20, MoveClassification.inaccuracy],
-      [-10, MoveClassification.good],
-      [-5, MoveClassification.excellent],
-      [10, MoveClassification.best],
-      [50, MoveClassification.great],
-      [70, MoveClassification.briliant],
+      [-20, MoveClassification.mistake],
+      [-5, MoveClassification.inaccuracy],
+      [0, MoveClassification.good],
+      [10, MoveClassification.excellent],
+      // [10, MoveClassification.best],
+      [20, MoveClassification.great],
+      [30, MoveClassification.briliant],
     ];
 
     if (move.best) {
@@ -294,17 +282,23 @@ export class StockfishEngine {
       //     100 - (move.playedMove.lines[0]?.winChance || 0)
       //   );
       // }
-      const diff = move.playedMove.accuracy - move.best.accuracy;
+      //  const diff = move.playedMove.accuracy - move.best.accuracy;
+      const winChanceDiff =
+        (move.playedMove.lines[0]?.winChance || 0) -
+        (move.best.lines[0]?.winChance || 0);
 
-      // move.diff = diff;
+      // move.winChanceDiff = winChanceDiff;
       for (const [diffV, cl] of mappings) {
         if (move.san === 'Nf6') {
           // console.log('debug', diff, diffV, diff <= diffV);
         }
-        if (diff <= (diffV as number)) {
+        if (winChanceDiff <= (diffV as number)) {
           move.playedMove.classification = cl as string;
           break;
         }
+      }
+      if (move.playedMove.bestmove?.bestmove === move.best.bestmove?.bestmove) {
+        move.playedMove.classification = MoveClassification.best;
       }
       if (!move.playedMove.classification) {
         move.playedMove.classification = MoveClassification.book;
