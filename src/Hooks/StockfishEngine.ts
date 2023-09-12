@@ -296,7 +296,7 @@ export class StockfishEngine {
       // }
       const diff = move.playedMove.accuracy - move.best.accuracy;
 
-      move.diff = diff;
+      // move.diff = diff;
       for (const [diffV, cl] of mappings) {
         if (move.san === 'Nf6') {
           // console.log('debug', diff, diffV, diff <= diffV);
