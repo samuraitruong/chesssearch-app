@@ -167,6 +167,11 @@ export class StockfishEngine {
     if (result.score.type === 'cp') {
       result.winChance = calculateWinChange(result.score.value);
     }
+
+    if (result.score.type === 'mate') {
+      result.winChance = 100;
+    }
+
     this.data.lines.push(result);
     return result;
   }

@@ -57,7 +57,6 @@ export function GameViewer({ data }: GameViewerProps) {
   const [fen, setFen] = useState(data.fen || data.LastPosition);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMute, setMute] = useState(false);
-
   const boardSize = useMemo(
     () => Math.min(height - 300, width - 400),
     [width, height]
@@ -86,7 +85,6 @@ export function GameViewer({ data }: GameViewerProps) {
     const item: ReviewedMove = moveList[currentMoveIndex];
 
     if (item) {
-      console.log('game', item);
       if (!isMute) {
         playSound(item);
       }
@@ -219,8 +217,10 @@ export function GameViewer({ data }: GameViewerProps) {
       <div className="pt-1 text-center">{data.ECO}</div>
 
       <div className="flex">
-        <div className="elo-bar my-10" style={{ height: boardSize }}>
-          <span className="absolute text-xs p-1 text-white">{eloText}</span>
+        <div className="elo-bar my-10 relative" style={{ height: boardSize }}>
+          <div className="absolute text-xs w-full pt-1 text-white text-center">
+            {eloText}
+          </div>
           <div
             className="w-full h-[50%] bg-black-100 transition-height duration-300 ease-linear"
             ref={blackElo as any}
