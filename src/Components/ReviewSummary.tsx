@@ -41,8 +41,8 @@ function Icon({ src }: IconProps) {
   return <img src={src} className="inline" />;
 }
 
-export function ReviewSummary({
-  data: {
+export function ReviewSummary({ data, result }: any) {
+  const {
     accuracy,
     good,
     inaccuracy,
@@ -53,9 +53,7 @@ export function ReviewSummary({
     briliant,
     great,
     book,
-  },
-  result,
-}: any) {
+  } = data;
   const [wmistake, bmistake] = mistake;
   const [wgood, bgood] = good;
   const [winaccuracy, binaccuracy] = inaccuracy;

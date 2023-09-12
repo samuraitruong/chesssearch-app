@@ -15,7 +15,7 @@ import { partitionListIntoPairs, simulateGame } from '../Libs/Utils';
 import CapturedPieces from './CapaturedPieces';
 import { playSound } from '../Libs/Media';
 
-const SF_DEPTH = 18;
+const SF_DEPTH = import.meta.env.VITE_SF_DEPTH || 18;
 
 interface GameViewerProps {
   data: {
@@ -83,7 +83,9 @@ export function GameViewer({ data }: GameViewerProps) {
 
   useEffect(() => {
     const item: ReviewedMove = moveList[currentMoveIndex];
+
     if (item) {
+      console.log('game', item);
       if (!isMute) {
         playSound(item);
       }
@@ -204,6 +206,7 @@ export function GameViewer({ data }: GameViewerProps) {
   const pairMoves = partitionListIntoPairs(moveList);
 
   const getClassName = (m: ReviewedMove) => {
+    if (!m) return '';
     return 'move-classification-' + m.playedMove?.classification || '';
   };
 
@@ -349,7 +352,7 @@ export function GameViewer({ data }: GameViewerProps) {
                   index * 2 + 1 === currentMoveIndex
                     ? 'bg-blue-500 font-medium text-white'
                     : ''
-                } ${getClassName(white)}`}
+                } ${getClassName(black)}`}
                 onClick={() => moveTo(index * 2 + 1)}
               >
                 {black?.san}

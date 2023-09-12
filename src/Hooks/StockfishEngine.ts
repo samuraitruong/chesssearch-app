@@ -267,21 +267,41 @@ export class StockfishEngine {
       [-20, MoveClassification.inaccuracy],
       [-10, MoveClassification.good],
       [-5, MoveClassification.excellent],
-      [0, MoveClassification.best],
-      [30, MoveClassification.great],
-      [50, MoveClassification.briliant],
+      [10, MoveClassification.best],
+      [50, MoveClassification.great],
+      [70, MoveClassification.briliant],
     ];
+
     if (move.best) {
       move.best.accuracy = accuracy;
       move.best.classification = classification;
+
       move.playedMove.accuracy = calculateAccuracy(
         move.best.lines[0]?.winChance || 0,
         move.playedMove.lines[0]?.winChance || 0
       );
+
+      // if (move.color === 'b') {
+      //   const currentPlayedMove = move.best.lines?.[0]; // actual move
+      //   const oppomentPlayedMove = prevMove.best.lines?.[0]; // actual move
+      //   move.best.accuracy = calculateAccuracy(
+      //     100 - (oppomentPlayedMove?.winChance || 0),
+      //     100 - (currentPlayedMove?.winChance || 0)
+      //   );
+
+      //   move.playedMove.accuracy = calculateAccuracy(
+      //     100 - (move.best.lines[0]?.winChance || 0),
+      //     100 - (move.playedMove.lines[0]?.winChance || 0)
+      //   );
+      // }
       const diff = move.playedMove.accuracy - move.best.accuracy;
-      // move.playedMove.diff = diff;
+
+      move.diff = diff;
       for (const [diffV, cl] of mappings) {
-        if (diff <= +diffV) {
+        if (move.san === 'Nf6') {
+          // console.log('debug', diff, diffV, diff <= diffV);
+        }
+        if (diff <= (diffV as number)) {
           move.playedMove.classification = cl as string;
           break;
         }
@@ -290,7 +310,7 @@ export class StockfishEngine {
         move.playedMove.classification = MoveClassification.book;
       }
     }
-    return move;
+    return JSON.parse(JSON.stringify(move));
   }
 
   async reviewGame(moves: Move[], depth = 18) {
@@ -313,7 +333,7 @@ export class StockfishEngine {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const self =
         enginePool.shift() || new StockfishEngine((_type, _data) => {});
-      self.setOption('UCI_AnalyseMode', 'true');
+      // self.setOption('UCI_AnalyseMode', 'true');
       const best = await self.findBestMove(move.before, depth);
 
       const playedMove = await self.searchMove(move.before, move.lan, depth);
@@ -322,7 +342,7 @@ export class StockfishEngine {
       return { best, ...move, playedMove };
     };
     for await (const result of asyncPool(
-      8,
+      navigator.hardwareConcurrency || 8,
       moveWithIndex,
       findBestMoveInForkedEngine
     )) {
