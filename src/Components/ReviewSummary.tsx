@@ -1,25 +1,48 @@
 /// <reference types="vite-svg-loader" />
-import { ReactNode } from 'react';
-import { MoveClassificationIcons } from '../Libs/Constants';
+import { MoveClassification, MoveClassificationIcons } from '../Libs/Constants';
 
 interface LineItemProps {
-  type: string;
-  whiteCount: number;
-  blackCount: number;
-  icon: ReactNode;
+  counts: number[];
+  title: string;
+  classification: MoveClassification;
+  clickOnSummaryItem: (
+    side: 'b' | 'w',
+    classification: MoveClassification
+  ) => void;
 }
-function LineItem({ type, whiteCount, blackCount, icon }: LineItemProps) {
+function LineItem({
+  title,
+  counts,
+  classification,
+  clickOnSummaryItem,
+}: LineItemProps) {
   const cssName =
-    'move-classification-' + type.toLocaleLowerCase().replace(' ', '-');
+    'move-classification-' +
+    classification.toLocaleLowerCase().replace(' ', '-');
+  const [whiteCount, blackCount] = counts;
+  const classificationTitle = title || classification;
+
   return (
     <div className={`flex w-full justify-between ${cssName} text-sm`}>
-      <div className="pl-5">{whiteCount}</div>
+      <div
+        className="pl-5 cursor-pointer"
+        onClick={() => clickOnSummaryItem('w', classification)}
+      >
+        {' '}
+        {whiteCount}
+      </div>
       <div>
-        {icon}
-        <span className="ml-1 font-semibold">{type}</span>
+        <Icon src={MoveClassificationIcons[classification]} />
+        <span className="ml-1 font-semibold">{classificationTitle}</span>
       </div>
 
-      <div className="pr-5"> {blackCount}</div>
+      <div
+        className="pr-5 cursor-pointer"
+        onClick={() => clickOnSummaryItem('b', classification)}
+      >
+        {' '}
+        {blackCount}
+      </div>
     </div>
   );
 }
@@ -31,8 +54,19 @@ interface IconProps {
 function Icon({ src }: IconProps) {
   return <img src={src} className="inline" />;
 }
-
-export function ReviewSummary({ data, result }: any) {
+interface ReviewSummaryProps {
+  clickOnSummaryItem: (
+    side: 'b' | 'w',
+    classification: MoveClassification
+  ) => void;
+  data: any;
+  result: string;
+}
+export function ReviewSummary({
+  data,
+  result,
+  clickOnSummaryItem,
+}: ReviewSummaryProps) {
   const {
     accuracy,
     good,
@@ -42,18 +76,12 @@ export function ReviewSummary({ data, result }: any) {
     best,
     blunder,
     briliant,
+    miss,
     great,
     book,
   } = data;
-  const [wmistake, bmistake] = mistake;
-  const [wgood, bgood] = good;
-  const [winaccuracy, binaccuracy] = inaccuracy;
   const [waccuracy, baccuracy] = accuracy;
-  const [wexcellent, bexcellent] = excellent;
-  const [wbest, bbest] = best;
-  const [wblunder, bblunder] = blunder;
-  const [wbriliant, bbriliant] = briliant;
-  const [wgreat, bgreat] = great;
+
   return (
     <div className="mb-3">
       <h2 className="text-center py-5 font-bold">Game Review</h2>
@@ -73,66 +101,26 @@ export function ReviewSummary({ data, result }: any) {
       </div>
 
       <div className="flex justify-between mb-2 flex-col">
-        <LineItem
-          type="Briliant"
-          whiteCount={wbriliant}
-          blackCount={bbriliant}
-          icon={<Icon src={MoveClassificationIcons.briliant} />}
-        />
-        <LineItem
-          type="Great Move"
-          whiteCount={wgreat}
-          blackCount={bgreat}
-          icon={<Icon src={MoveClassificationIcons.great} />}
-        />
-        <LineItem
-          type="Best Move"
-          whiteCount={wbest}
-          blackCount={bbest}
-          icon={<Icon src={MoveClassificationIcons.best} />}
-        />
-        <LineItem
-          type="Excellent"
-          whiteCount={wexcellent}
-          blackCount={bexcellent}
-          icon={<Icon src={MoveClassificationIcons.excellent} />}
-        />
-        <LineItem
-          type="Good"
-          whiteCount={wgood}
-          blackCount={bgood}
-          icon={<Icon src={MoveClassificationIcons.good} />}
-        />
-        <LineItem
-          type="Book"
-          whiteCount={book[0]}
-          blackCount={book[1]}
-          icon={<Icon src={MoveClassificationIcons.book} />}
-        />
-        <LineItem
-          type="Inaccuracy"
-          whiteCount={winaccuracy}
-          blackCount={binaccuracy}
-          icon={<Icon src={MoveClassificationIcons.inaccuracy} />}
-        />
-        <LineItem
-          type="Mistake"
-          whiteCount={wmistake}
-          blackCount={bmistake}
-          icon={<Icon src={MoveClassificationIcons.mistake} />}
-        />
-        <LineItem
-          type="Miss"
-          whiteCount={0}
-          blackCount={0}
-          icon={<Icon src={MoveClassificationIcons.miss} />}
-        />
-        <LineItem
-          type="Blunder"
-          whiteCount={wblunder}
-          blackCount={bblunder}
-          icon={<Icon src={MoveClassificationIcons.blunder} />}
-        />
+        {[
+          [briliant, MoveClassification.briliant, 'Briliant'],
+          [great, MoveClassification.great, 'Great Move'],
+          [best, MoveClassification.best, 'Best Move'],
+          [excellent, MoveClassification.excellent, 'Excellent'],
+          [good, MoveClassification.good, 'Good'],
+          [book, MoveClassification.book, 'Book'],
+          [inaccuracy, MoveClassification.inaccuracy, 'Inaccuracy'],
+          [mistake, MoveClassification.mistake, 'Mistake'],
+          [miss, MoveClassification.miss, 'Miss'],
+          [blunder, MoveClassification.blunder, 'Blunder'],
+        ].map(([counts, cl, title]) => (
+          <LineItem
+            key={cl}
+            counts={counts}
+            clickOnSummaryItem={clickOnSummaryItem}
+            classification={cl}
+            title={title}
+          />
+        ))}
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import { partitionListIntoPairs, simulateGame } from '../Libs/Utils';
 import CapturedPieces from './CapaturedPieces';
 import { playSound } from '../Libs/Media';
 import { CustomSquareRenderer } from './CustomSquareRenderer';
+import { MoveClassification } from '../Libs/Constants';
 
 const SF_DEPTH = import.meta.env.VITE_SF_DEPTH || 18;
 
@@ -202,6 +203,14 @@ export function GameViewer({ data }: GameViewerProps) {
     element.click();
   };
 
+  const clickOnSummaryItem = (type: 'w' | 'b', cl: MoveClassification) => {
+    const indexOfMove = moveList.findIndex(
+      (x) => x.color === type && x.playedMove?.classification === cl
+    );
+    if (indexOfMove >= 0) {
+      moveTo(indexOfMove);
+    }
+  };
   const pairMoves = partitionListIntoPairs(moveList);
 
   const getClassName = (m: ReviewedMove) => {
@@ -323,7 +332,11 @@ export function GameViewer({ data }: GameViewerProps) {
           style={{ maxHeight: boardSize + 100 }}
         >
           {reviewData && reviewData.summary ? (
-            <ReviewSummary data={reviewData.summary} result={data.Result} />
+            <ReviewSummary
+              data={reviewData.summary}
+              result={data.Result}
+              clickOnSummaryItem={clickOnSummaryItem}
+            />
           ) : (
             <div className="p-3 text-3xl text-center font-bold border border-solid mb-4">
               {data.Result || data.result}
