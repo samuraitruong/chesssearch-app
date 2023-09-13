@@ -169,7 +169,9 @@ export class StockfishEngine {
     }
 
     if (result.score.type === 'mate') {
-      result.winChance = 100;
+      if (result.score.value < 0) {
+        result.winChance = 0;
+      } else result.winChance = 100;
     }
 
     this.data.lines.push(result);

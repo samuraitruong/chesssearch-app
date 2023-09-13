@@ -11,7 +11,11 @@ import useViewport from '../Hooks/useViewport';
 import { ReviewedMove, StockfishLine } from '../Hooks/StockfishEngine';
 import ReviewLoading from './ReviewLoading';
 import ReviewSummary from './ReviewSummary';
-import { partitionListIntoPairs, simulateGame } from '../Libs/Utils';
+import {
+  partitionListIntoPairs,
+  findPiecePosition,
+  simulateGame,
+} from '../Libs/Utils';
 import CapturedPieces from './CapaturedPieces';
 import { playSound } from '../Libs/Media';
 import { CustomSquareRenderer } from './CustomSquareRenderer';
@@ -45,8 +49,8 @@ interface GameViewerProps {
 
 export function GameViewer({ data }: GameViewerProps) {
   const [currentMove, setCurrentMove] = useState<ReviewedMove>();
-  const blackElo = useRef<HTMLDivElement>();
-  const whiteElo = useRef<HTMLDivElement>();
+  const blackElo = useRef() as React.MutableRefObject<HTMLDivElement>;
+  const whiteElo = useRef() as React.MutableRefObject<HTMLDivElement>;
   const [eloText, setEloText] = useState('0.0');
   const [arrow, setArrow] = useState<Square[][]>([]);
   const [moveList, setMoveList] = useState<ReviewedMove[]>([]);
@@ -120,10 +124,10 @@ export function GameViewer({ data }: GameViewerProps) {
 
       // let p = Math.min(50, (score / 8) * 50);
       // p = Math.max(-50, p);
-      let p = bestMove.winChance;
+      const p = bestMove.winChance;
       if (bestMove.score.type === 'mate') {
-        p = (100 * bestMove.score.value) / Math.abs(bestMove.score.value);
-        setEloText(`M${bestMove.score.value.toFixed(0)}`);
+        // p = (100 * bestMove.score.value) / Math.abs(bestMove.score.value);
+        setEloText(`M${Math.abs(bestMove.score.value).toFixed(0)}`);
       } else {
         setEloText(Math.abs(score).toFixed(1));
       }
@@ -164,8 +168,8 @@ export function GameViewer({ data }: GameViewerProps) {
   }, [isPlaying, moveList.length, currentMoveIndex]);
 
   useEffect(() => {
-    const lines = simulateGame(data.Moves);
-    setMoveList(lines as any);
+    const lines = simulateGame(data.Moves) as ReviewedMove[];
+    setMoveList(lines);
   }, [data.Moves]);
 
   useEffect(() => {
@@ -183,7 +187,7 @@ export function GameViewer({ data }: GameViewerProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [currentMoveIndex]);
+  }, [currentMoveIndex, moveTo]);
 
   const togglePlay = () => {
     if (!isPlaying && currentMoveIndex >= data.Moves.length - 1) {
@@ -218,6 +222,29 @@ export function GameViewer({ data }: GameViewerProps) {
     return 'move-classification-' + m.playedMove?.classification || '';
   };
 
+  const memoCustomerRender = useMemo(
+    () => CustomSquareRenderer(currentMove),
+    [currentMove]
+  );
+  const customSquare = useMemo(() => {
+    const styles = {
+      [currentMove?.from as Square]: { backgroundColor: '#FFA50077' },
+      [currentMove?.to as Square]: { backgroundColor: '#FFA500EE' },
+    };
+    if (currentMove?.san.includes('+')) {
+      // find the target king square
+      const [checkedKing] = findPiecePosition(
+        currentMove.after,
+        currentMove.color === 'w' ? 'b' : 'w',
+        'k'
+      );
+      if (checkedKing) {
+        styles[checkedKing.square] = { backgroundColor: '#CC0000CC' };
+      }
+    }
+    return styles;
+  }, [currentMove]);
+
   return (
     <div>
       <div className="pt-1 text-center font-semibold">
@@ -232,11 +259,11 @@ export function GameViewer({ data }: GameViewerProps) {
           </div>
           <div
             className="w-full h-[50%] bg-black-100 transition-height duration-300 ease-linear"
-            ref={blackElo as any}
+            ref={blackElo}
           ></div>
           <div
             className="w-full h-[50%] bg-green-500 transition-height duration-300 ease-linear"
-            ref={whiteElo as any}
+            ref={whiteElo}
           ></div>
         </div>
 
@@ -260,9 +287,8 @@ export function GameViewer({ data }: GameViewerProps) {
             boardWidth={boardSize}
             customArrows={arrow}
             customArrowColor="#11d954"
-            customSquare={
-              currentMove?.playedMove && CustomSquareRenderer(currentMove)
-            }
+            customSquare={currentMove?.playedMove && memoCustomerRender}
+            customSquareStyles={customSquare}
           />
           <div
             className="text-xs font-semibold height-[38px] mt-1"
@@ -328,7 +354,7 @@ export function GameViewer({ data }: GameViewerProps) {
           </div>
         </div>
         <div
-          className="ml-3 flex flex-col pl-2 w-[320px] overflow-y-scroll overflow-x-hidden mt-5"
+          className="ml-3 flex flex-col pl-2 w-[400px] overflow-y-scroll overflow-x-hidden mt-5"
           style={{ maxHeight: boardSize + 100 }}
         >
           {reviewData && reviewData.summary ? (

@@ -20,7 +20,7 @@ export function useStockfish() {
           }
 
           if (type === 'bestmove') {
-            // console.log(data);
+            console.log(data);
             setGameData(data);
           }
           if (type === 'review-status') {

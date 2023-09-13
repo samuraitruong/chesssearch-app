@@ -1,4 +1,4 @@
-import { Chess } from 'chess.js';
+import { Chess, PieceSymbol } from 'chess.js';
 
 export function partitionListIntoPairs<T>(arr: T[]): Array<T[]> {
   return arr.reduce((result, current, index) => {
@@ -53,4 +53,18 @@ export function simulateGame(moves: string[]) {
     return { ...move, captured_pieces: JSON.parse(JSON.stringify(captured)) };
   });
   return lines;
+}
+
+export function findPiecePosition(
+  fen: string,
+  color: 'b' | 'w',
+  piece: PieceSymbol
+) {
+  const game = new Chess(fen);
+  const board = game.board();
+
+  const results = board.flatMap((row) =>
+    row.filter((c) => c?.color === color && c.type === piece)
+  );
+  return results;
 }

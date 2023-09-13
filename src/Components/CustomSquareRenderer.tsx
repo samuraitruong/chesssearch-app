@@ -3,7 +3,7 @@ import { CustomSquareProps } from 'react-chessboard/dist/chessboard/types';
 import { MoveClassification, MoveClassificationIcons } from '../Libs/Constants';
 import { ReviewedMove } from '../Hooks/StockfishEngine';
 
-export const CustomSquareRenderer = (currentMove: ReviewedMove) =>
+export const CustomSquareRenderer = (currentMove?: ReviewedMove) =>
   forwardRef<HTMLDivElement, CustomSquareProps>((props, ref) => {
     const { children, square, style } = props;
     const icon =
