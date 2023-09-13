@@ -8,43 +8,23 @@ import { PiSpeakerHigh, PiSpeakerX } from 'react-icons/pi';
 import { MdReviews } from 'react-icons/md';
 import { useStockfish } from '../Hooks/useStockfish';
 import useViewport from '../Hooks/useViewport';
-import { ReviewedMove, StockfishLine } from '../Hooks/StockfishEngine';
 import ReviewLoading from './ReviewLoading';
 import ReviewSummary from './ReviewSummary';
 import {
   partitionListIntoPairs,
   findPiecePosition,
   simulateGame,
-} from '../Libs/Utils';
+} from '../Shared/Utils';
 import CapturedPieces from './CapaturedPieces';
-import { playSound } from '../Libs/Media';
+import { playSound } from '../Shared/Media';
 import { CustomSquareRenderer } from './CustomSquareRenderer';
-import { MoveClassification } from '../Libs/Constants';
+import { MoveClassification } from '../Shared/Constants';
+import { GameData, ReviewedMove, StockfishLine } from '../Shared/Model';
 
 const SF_DEPTH = import.meta.env.VITE_SF_DEPTH || 18;
 
 interface GameViewerProps {
-  data: {
-    Game: string;
-    White: string;
-    Black: string;
-    WhiteElo: string;
-    BlackElo: string;
-    Event: string;
-    Site: string;
-    Pgn: string;
-    pgn?: string;
-    Moves: string[];
-    moves?: string[];
-    LastPosition: string;
-    Year: string;
-    Result: string;
-    ECO: string;
-    fen?: string;
-    result?: string;
-    year?: string;
-    game?: string;
-  };
+  data: GameData;
 }
 
 export function GameViewer({ data }: GameViewerProps) {
@@ -54,7 +34,7 @@ export function GameViewer({ data }: GameViewerProps) {
   const [eloText, setEloText] = useState('0.0');
   const [arrow, setArrow] = useState<Square[][]>([]);
   const [moveList, setMoveList] = useState<ReviewedMove[]>([]);
-  const { engine, gameData, reviewData, reviewStatus } = useStockfish();
+  const { engine, bestMoveResult, reviewData, reviewStatus } = useStockfish();
   const { height, width } = useViewport();
   const [currentMoveIndex, setCurrentMoveIndex] = useState(
     data.Moves.length - 1
@@ -95,7 +75,7 @@ export function GameViewer({ data }: GameViewerProps) {
       }
       engine?.findBestMove(item.after, SF_DEPTH);
       if (item.best) {
-        const bestmove: string = item.best?.bestmove?.bestmove || '';
+        const bestmove: string = item.best?.bestmove || '';
         setArrow([
           [
             bestmove.substring(0, 2) as Square,
@@ -112,21 +92,18 @@ export function GameViewer({ data }: GameViewerProps) {
   }, [currentMoveIndex, isMute, moveList]);
 
   useEffect(() => {
-    if (gameData && gameData.bestmove && gameData.position) {
-      const [, player] = gameData.position.split(' ');
-      const bestMove = gameData.lines.find((x: StockfishLine) =>
-        x.pv.startsWith(gameData.bestmove.bestmove)
+    if (bestMoveResult && bestMoveResult.bestmove && bestMoveResult.position) {
+      const [, player] = bestMoveResult.position.split(' ');
+      const bestMove = bestMoveResult.lines.find((x: StockfishLine) =>
+        x.pv.startsWith(bestMoveResult.bestmove)
       );
       if (!bestMove) {
         return;
       }
       const score = bestMove.score.value / 100;
 
-      // let p = Math.min(50, (score / 8) * 50);
-      // p = Math.max(-50, p);
       const p = bestMove.winChance;
       if (bestMove.score.type === 'mate') {
-        // p = (100 * bestMove.score.value) / Math.abs(bestMove.score.value);
         setEloText(`M${Math.abs(bestMove.score.value).toFixed(0)}`);
       } else {
         setEloText(Math.abs(score).toFixed(1));
@@ -142,7 +119,7 @@ export function GameViewer({ data }: GameViewerProps) {
         }
       }
     }
-  }, [gameData]);
+  }, [bestMoveResult]);
 
   useEffect(() => {
     let intervalId: number = 0;

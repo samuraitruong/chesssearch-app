@@ -1,3 +1,4 @@
+import _ from 'lodash';
 const round = (n: number, digit = 2) => {
   return +n.toFixed(digit);
 };
@@ -23,3 +24,7 @@ export function calculateAccuracy(
   );
   return round(accuracy);
 }
+
+// export function estimatePlayPerfomance(lines: any[]) {
+//   const totalCP = _.sumlines.filter(x =>x.score.type === 'cp')
+// }

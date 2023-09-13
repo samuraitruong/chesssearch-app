@@ -1,7 +1,10 @@
 import { forwardRef } from 'react';
 import { CustomSquareProps } from 'react-chessboard/dist/chessboard/types';
-import { MoveClassification, MoveClassificationIcons } from '../Libs/Constants';
-import { ReviewedMove } from '../Hooks/StockfishEngine';
+import {
+  MoveClassification,
+  MoveClassificationIcons,
+} from '../Shared/Constants';
+import { ReviewedMove } from '../Shared/Model';
 
 export const CustomSquareRenderer = (currentMove?: ReviewedMove) =>
   forwardRef<HTMLDivElement, CustomSquareProps>((props, ref) => {

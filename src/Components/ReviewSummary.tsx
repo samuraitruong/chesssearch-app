@@ -1,5 +1,8 @@
 /// <reference types="vite-svg-loader" />
-import { MoveClassification, MoveClassificationIcons } from '../Libs/Constants';
+import {
+  MoveClassification,
+  MoveClassificationIcons,
+} from '../Shared/Constants';
 
 interface LineItemProps {
   counts: number[];

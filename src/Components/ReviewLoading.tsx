@@ -1,4 +1,4 @@
-import { ReviewStatus } from '../Hooks/StockfishEngine';
+import { ReviewStatus } from '../Shared/Model';
 
 interface ReviewLoadingProps {
   data: ReviewStatus;

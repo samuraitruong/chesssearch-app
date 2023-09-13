@@ -1,61 +1,18 @@
 import { Move } from 'chess.js';
-import { calculateAccuracy, calculateWinChange } from '../Libs/Elevation';
+import { calculateAccuracy, calculateWinChange } from '../Shared/Elevation';
 import asyncPool from 'tiny-async-pool';
 import _ from 'lodash';
-import { MoveClassification } from '../Libs/Constants';
+import { MoveClassification } from '../Shared/Constants';
+import { BestMoveOutput, ReviewedMove } from '../Shared/Model';
 
-export interface ReviewedMove extends Move {
-  best: ReviewedMoveOutput;
-  playedMove: ReviewedMoveOutput;
-  captured_pieces: any;
-  index: number;
-}
-// https://lichess.org/page/accuracy
-
-interface ReviewedMoveOutput extends BestMoveOutput {
-  accuracy?: number;
-  classification?: string;
-}
-export interface StockfishLine {
-  winChance?: number;
-  pv: string;
-  depth: number;
-  multipv: number;
-  nodes: number;
-  score: {
-    value: number;
-    type: string;
-  };
-}
-export interface BestMoveOutput {
-  position?: string;
-  bestmove?: {
-    bestmove: string;
-    ponder: string;
-  };
-  lines: Array<StockfishLine>;
-}
-
-export interface ReviewStatus {
-  done: boolean;
-  total: number;
-  current: number;
-  depth: number;
-}
-export interface GameReview {
-  moves: ReviewedMove[];
-  summary: {
-    accuracy: number[];
-    mistake: number[];
-    inaccuracy: number[];
-    best: number[];
-    good: number[];
-    blunder: number[];
-  };
-}
 export class StockfishEngine {
   private outputs: string[] = [];
-  private data: BestMoveOutput = { lines: [] };
+  private data: BestMoveOutput = {
+    lines: [],
+    bestmove: '',
+    bestLine: undefined,
+    ponder: '',
+  };
   private engine: Worker;
   private isTerminated = false;
   constructor(
@@ -138,7 +95,8 @@ export class StockfishEngine {
       return null;
     }
     const [, bestmove, , ponder] = line.split(' ');
-    this.data.bestmove = { bestmove, ponder };
+    this.data.bestmove = bestmove;
+    this.data.ponder = ponder;
   }
 
   private parseInfoLine(infoLine: string) {
@@ -180,10 +138,10 @@ export class StockfishEngine {
 
   async reset() {
     await this.sendUci('stop');
-    this.data = { lines: [] };
+    this.data = { lines: [], bestmove: '', ponder: '', bestLine: undefined };
     this.outputs = [];
   }
-  async postEngineRun() {
+  async postEngineRun(): Promise<BestMoveOutput> {
     const mates = this.data.lines?.filter((x) => x.score.type === 'mate') || [];
     const normal = this.data.lines?.filter((x) => x.score.type === 'cp') || [];
 
@@ -304,7 +262,7 @@ export class StockfishEngine {
           break;
         }
       }
-      if (move.playedMove.bestmove?.bestmove === move.best.bestmove?.bestmove) {
+      if (move.playedMove.bestmove === move.best.bestmove) {
         move.playedMove.classification = MoveClassification.best;
       }
       if (!move.playedMove.classification) {
