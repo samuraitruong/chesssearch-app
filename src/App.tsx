@@ -29,7 +29,7 @@ const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
         host: import.meta.env.VITE_TYPESENSE_HOST || 'localhost',
         port: parseInt(import.meta.env.VITE_TYPESENSE_PORT || '8108'),
         path: '', // Optional. Example: If you have your typesense mounted in localhost:8108/typesense, path should be equal to '/typesense'
-        protocol: 'http',
+        protocol: import.meta.env.VITE_TYPESENSE_PROTOCOL || 'http',
       },
     ],
     cacheSearchResultsForSeconds: 1 * 60, // Cache search results from server. Defaults to 2 minutes. Set to 0 to disable caching.

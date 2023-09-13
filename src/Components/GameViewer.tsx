@@ -148,7 +148,7 @@ export function GameViewer({ data }: GameViewerProps) {
     let intervalId: number = 0;
 
     if (isPlaying) {
-      intervalId = setInterval(() => {
+      intervalId = window.setInterval(() => {
         if (currentMoveIndex < moveList.length) {
           setCurrentMoveIndex((previousCount) => previousCount + 1);
         }
