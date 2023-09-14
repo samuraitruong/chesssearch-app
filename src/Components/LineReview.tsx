@@ -41,24 +41,24 @@ function DisplayReviewedMoveOutput({
           <span className="mx-1">{bestLine.moves[0].san}</span>
           is an {cl} move
         </h2>
-        <div className="mr-5  py-1 px-4 font-bold bg-slate-200 text-black text-center">
+        <div className="mr-5  py-1 px-4 font-bold bg-slate-200 text-black text-center rounded-sm">
           {eloText}
         </div>
       </div>
       <p>{bestLine.description}</p>
-      {bestLine.moves.map((x) => (
+      {bestLine.moves.map((m) => (
         <Popover
           content={
             <MiniBoard
-              position={x.after}
+              position={m.after}
               size={200}
-              arrows={[[x.from, x.to]]}
+              arrows={[[m.from, m.to]]}
             />
           }
           trigger={PopoverTriggerType.hover}
-          key={x.san + x.lan}
+          key={m.san + m.lan}
         >
-          <span className="pointer font-semibold text-gray-800"> {x.san}</span>
+          <span className="pointer font-semibold text-gray-500"> {m.san}</span>
         </Popover>
       ))}
     </div>

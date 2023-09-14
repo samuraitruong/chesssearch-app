@@ -350,7 +350,7 @@ export function GameViewer({ data }: GameViewerProps) {
             </div>
           )}
           {pairMoves?.map(([white, black], index) => (
-            <>
+            <div key={index}>
               <div
                 className="flex w-full items-center border-b border-dashed border-gray-300 mb-1"
                 key={index}
@@ -388,7 +388,7 @@ export function GameViewer({ data }: GameViewerProps) {
                 currentMove?.playedMove?.bestLine && (
                   <LineReview move={currentMove} />
                 )}
-            </>
+            </div>
           ))}
 
           {reviewData && reviewData.summary && (
