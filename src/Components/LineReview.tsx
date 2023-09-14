@@ -38,8 +38,8 @@ function DisplayReviewedMoveOutput({
             className="inline"
             width={32}
           />
-          <span className="mx-1">{bestLine.moves[0].san}</span>
-          is an {cl} move
+          <span className="mx-1 font-semibold">{bestLine.moves[0].san}</span>
+          <span className="font-semibold">is a {cl} move</span>
         </h2>
         <div className="mr-5  py-1 px-4 font-bold bg-slate-200 text-black text-center rounded-sm">
           {eloText}

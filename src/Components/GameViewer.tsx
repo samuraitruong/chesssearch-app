@@ -83,7 +83,6 @@ export function GameViewer({ data }: GameViewerProps) {
       if (rect.y > height - 200) {
         itemRef.scrollIntoView();
       }
-      console.log(itemRef.getBoundingClientRect());
       if (!isMute) {
         playSound(item);
       }
@@ -370,11 +369,11 @@ export function GameViewer({ data }: GameViewerProps) {
                 key={index}
                 data-move-index={Math.round(index / 2)}
               >
-                <span className="text-right w-[25px] block mr-2">
+                <span className="font-semibold text-right w-[25px] block mr-2">
                   {index + 1}.
                 </span>
                 <a
-                  className={`cursor-pointer  pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
+                  className={`font-semibold  cursor-pointer  pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
                     index * 2 === currentMoveIndex
                       ? 'bg-blue-500 font-medium text-white'
                       : ''
@@ -388,7 +387,7 @@ export function GameViewer({ data }: GameViewerProps) {
                 }`} */}
                 </a>
                 <a
-                  className={`cursor-pointer pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
+                  className={`font-semibold cursor-pointer pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
                     index * 2 + 1 === currentMoveIndex
                       ? 'bg-blue-500 font-medium text-white'
                       : ''

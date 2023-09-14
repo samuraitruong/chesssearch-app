@@ -93,7 +93,7 @@ export function reviewMoveLine(fen: string, line: StockfishLine): ReviewedLine {
   if (color === 'b') {
     materialDiff = -materialDiff;
   }
-  let description = `This move make review text to explain more`;
+  let description = `I not sure how to review this now, but I will keep improve this message :)`;
 
   if (materialDiff > 0) {
     description = `You win ${Math.abs(
@@ -104,6 +104,18 @@ export function reviewMoveLine(fen: string, line: StockfishLine): ReviewedLine {
     description = `You lose ${Math.abs(
       materialDiff
     )} material points afer all the trade`;
+  }
+  // case of forcemate
+  if (line.score.type === 'mate') {
+    if (line.score.value < 0) {
+      description = `Oops, you've just made a significant error that sets up a force checkmate for your opponent in the next ${Math.abs(
+        line.score.value
+      )} moves. There's no way to prevent it now.`;
+    } else {
+      description = `You can now achieve checkmate using the force in ${Math.abs(
+        line.score.value
+      )} moves. It's an unstoppable strategy.`;
+    }
   }
   return {
     description,
