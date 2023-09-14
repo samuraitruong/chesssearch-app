@@ -84,7 +84,6 @@ export function ReviewSummary({
     book,
   } = data;
   const [waccuracy, baccuracy] = accuracy;
-
   return (
     <div className="mb-3">
       <h2 className="text-center py-5 font-bold">Game Review</h2>

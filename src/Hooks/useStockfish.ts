@@ -12,16 +12,16 @@ export function useStockfish() {
 
   useEffect(() => {
     const initStockfishWorkerEngine = async () => {
-      console.log('initial new engine');
+      console.log('Start new stockfish engine worker');
       setEngine(
         new StockfishEngine((type, data) => {
           if (type === 'review') {
             setReviewData(data);
-            console.log(data);
+            //console.log(data);
           }
 
           if (type === 'bestmove') {
-            console.log(data);
+            //console.log(data);
             setBestMoveResult(data);
           }
           if (type === 'review-status') {
@@ -35,7 +35,7 @@ export function useStockfish() {
       initStockfishWorkerEngine();
     }
     return () => {
-      console.log('kill the engine');
+      console.log('Clean up stockfish engine after use');
       if (engine) engine.quit();
     };
   }, [engine]);

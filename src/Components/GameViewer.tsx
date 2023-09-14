@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { Square } from 'chess.js';
 import { LuChevronFirst, LuDownload, LuChevronLast } from 'react-icons/lu';
@@ -10,16 +10,15 @@ import { useStockfish } from '../Hooks/useStockfish';
 import useViewport from '../Hooks/useViewport';
 import ReviewLoading from './ReviewLoading';
 import ReviewSummary from './ReviewSummary';
-import {
-  partitionListIntoPairs,
-  findPiecePosition,
-  simulateGame,
-} from '../Shared/Utils';
+import { partitionListIntoPairs, findPiecePosition } from '../Shared/Utils';
 import CapturedPieces from './CapaturedPieces';
 import { playSound } from '../Shared/Media';
 import { CustomSquareRenderer } from './CustomSquareRenderer';
 import { MoveClassification } from '../Shared/Constants';
 import { GameData, ReviewedMove, StockfishLine } from '../Shared/Model';
+import EloSummary from './EloSummary';
+import { simulateGame } from '../Shared/Game';
+import { LineReview } from './LineReview';
 
 const SF_DEPTH = import.meta.env.VITE_SF_DEPTH || 18;
 
@@ -46,15 +45,19 @@ export function GameViewer({ data }: GameViewerProps) {
     () => Math.min(height - 300, width - 400),
     [width, height]
   );
-  function moveTo(index: number) {
-    if (index < 0) {
-      return;
-    }
-    if (index > moveList.length - 1) {
-      return;
-    }
-    setCurrentMoveIndex(index);
-  }
+
+  const moveTo = useCallback(
+    (index: number) => {
+      if (index < 0) {
+        return;
+      }
+      if (index > moveList.length - 1) {
+        return;
+      }
+      setCurrentMoveIndex(index);
+    },
+    [moveList.length]
+  );
 
   useEffect(() => {
     if (reviewData) {
@@ -70,6 +73,7 @@ export function GameViewer({ data }: GameViewerProps) {
     const item: ReviewedMove = moveList[currentMoveIndex];
 
     if (item) {
+      console.log(item);
       if (!isMute) {
         playSound(item);
       }
@@ -346,39 +350,50 @@ export function GameViewer({ data }: GameViewerProps) {
             </div>
           )}
           {pairMoves?.map(([white, black], index) => (
-            <div
-              className="flex w-full items-center border-b border-dashed border-gray-300 mb-1"
-              key={index}
-            >
-              <span className="text-right w-[25px] block mr-2">
-                {index + 1}.
-              </span>
-              <a
-                className={`cursor-pointer  pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
-                  index * 2 === currentMoveIndex
-                    ? 'bg-blue-500 font-medium text-white'
-                    : ''
-                } ${getClassName(white)}`}
-                onClick={() => moveTo(index * 2)}
+            <>
+              <div
+                className="flex w-full items-center border-b border-dashed border-gray-300 mb-1"
+                key={index}
               >
-                {white?.san}
-                {/* |{' '}
+                <span className="text-right w-[25px] block mr-2">
+                  {index + 1}.
+                </span>
+                <a
+                  className={`cursor-pointer  pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
+                    index * 2 === currentMoveIndex
+                      ? 'bg-blue-500 font-medium text-white'
+                      : ''
+                  } ${getClassName(white)}`}
+                  onClick={() => moveTo(index * 2)}
+                >
+                  {white?.san}
+                  {/* |{' '}
                 {`${white.playedMove?.accuracy || ''} - ${
                   white.best?.accuracy || ''
                 }`} */}
-              </a>
-              <a
-                className={`cursor-pointer pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
-                  index * 2 + 1 === currentMoveIndex
-                    ? 'bg-blue-500 font-medium text-white'
-                    : ''
-                } ${getClassName(black)}`}
-                onClick={() => moveTo(index * 2 + 1)}
-              >
-                {black?.san}
-              </a>
-            </div>
+                </a>
+                <a
+                  className={`cursor-pointer pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
+                    index * 2 + 1 === currentMoveIndex
+                      ? 'bg-blue-500 font-medium text-white'
+                      : ''
+                  } ${getClassName(black)}`}
+                  onClick={() => moveTo(index * 2 + 1)}
+                >
+                  {black?.san}
+                </a>
+              </div>
+              {(currentMoveIndex == index * 2 ||
+                index * 2 + 1 === currentMoveIndex) &&
+                currentMove?.playedMove?.bestLine && (
+                  <LineReview move={currentMove} />
+                )}
+            </>
           ))}
+
+          {reviewData && reviewData.summary && (
+            <EloSummary data={reviewData.summary} />
+          )}
         </div>
       </div>
       {reviewStatus && !reviewStatus.done && (

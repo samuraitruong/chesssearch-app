@@ -1,10 +1,21 @@
+import { Square } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
-
-export function MiniBoard({ position }: any) {
+interface MiniBoardProps {
+  position: string;
+  size?: number;
+  arrows?: Array<string[]>;
+}
+export function MiniBoard({
+  position,
+  size = 100,
+  arrows = [],
+}: MiniBoardProps) {
   return (
     <Chessboard
-      boardWidth={100}
+      customArrowColor="#11d954"
+      boardWidth={size}
       position={position}
+      customArrows={arrows as Square[][]}
       arePiecesDraggable={false}
     />
   );

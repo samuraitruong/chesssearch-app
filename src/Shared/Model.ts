@@ -1,4 +1,5 @@
 import type { Move } from 'chess.js';
+import { MoveClassification } from './Constants';
 
 export interface GameData {
   Game: string;
@@ -21,18 +22,23 @@ export interface GameData {
   year?: string;
   game?: string;
 }
-
+export interface ReviewedLine extends StockfishLine {
+  elo?: number;
+  description: string;
+  marterial: number;
+  moves: Move[];
+}
 export interface BestMoveOutput {
   bestmove: string;
   ponder: string;
   lines: StockfishLine[];
-  bestLine: StockfishLine | undefined;
+  bestLine?: ReviewedLine;
   position?: string;
 }
 
 export interface ReviewedMoveOutput extends BestMoveOutput {
   accuracy?: number;
-  classification?: string;
+  classification?: MoveClassification;
 }
 export interface StockfishLine {
   winChance?: number;
@@ -63,6 +69,7 @@ export interface ReviewStatus {
 export interface GameReview {
   moves: ReviewedMove[];
   summary: {
+    elo: number[];
     accuracy: number[];
     mistake: number[];
     inaccuracy: number[];

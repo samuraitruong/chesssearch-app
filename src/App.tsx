@@ -71,7 +71,7 @@ export default function App() {
       indexName={indexName}
       insights={false}
     >
-      <Configure hitsPerPage={30} />
+      <Configure hitsPerPage={50} />
       <header className="header-bg flex justify-center items-center min-height-[170px] p-2 bg-opacity-50 bg-white bg-contain pt-[150px]">
         <SearchBox
           placeholder="Search keywork (ie: Magnus vs Hiraku)"

@@ -18,8 +18,11 @@ export const CustomSquareRenderer = (currentMove?: ReviewedMove) =>
       <div ref={ref} style={{ ...style }} className="relative">
         {children}
         {icon && square === currentMove?.to && (
-          <div className="absolute right-0 top-0 h-[20px] w-[20px] opacity-95 z-50 ">
-            <img src={icon} width={22} />
+          <div
+            className="absolute h-[35px] w-[35px] z-30"
+            style={{ top: -10, right: -10 }}
+          >
+            <img src={icon} width={35} />
           </div>
         )}
       </div>

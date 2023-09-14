@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@idui/react-popover": "^3.1.0",
     "@types/lodash": "^4.14.198",
     "@types/tiny-async-pool": "^2.0.0",
     "algoliasearch": "4",

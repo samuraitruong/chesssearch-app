@@ -1,9 +1,14 @@
 import { Move } from 'chess.js';
-import { calculateAccuracy, calculateWinChange } from '../Shared/Elevation';
+import {
+  calculateAccuracy,
+  calculateWinChange,
+  estimatePlayPerfomance,
+} from '../Shared/Elevation';
 import asyncPool from 'tiny-async-pool';
 import _ from 'lodash';
 import { MoveClassification } from '../Shared/Constants';
 import { BestMoveOutput, ReviewedMove } from '../Shared/Model';
+import { reviewMoveLine } from '../Shared/Game';
 
 export class StockfishEngine {
   private outputs: string[] = [];
@@ -149,6 +154,13 @@ export class StockfishEngine {
     normal.sort((a, b) => b.score.value - a.score.value);
 
     this.data.lines = [...mates, ...normal];
+
+    // analyse the best move line
+    this.data.bestLine = reviewMoveLine(
+      this.data.position || '',
+      this.data.lines[0]
+    );
+
     const clonedData = { ...this.data };
     if (this.data) this.emitter('bestmove', clonedData);
     return clonedData;
@@ -227,7 +239,7 @@ export class StockfishEngine {
 
     if (move.best) {
       move.best.accuracy = accuracy;
-      move.best.classification = classification;
+      move.best.classification = classification as MoveClassification;
 
       move.playedMove.accuracy = calculateAccuracy(
         move.best.lines[0]?.winChance || 0,
@@ -258,7 +270,7 @@ export class StockfishEngine {
           // console.log('debug', diff, diffV, diff <= diffV);
         }
         if (winChanceDiff <= (diffV as number)) {
-          move.playedMove.classification = cl as string;
+          move.playedMove.classification = cl as MoveClassification;
           break;
         }
       }
@@ -267,6 +279,13 @@ export class StockfishEngine {
       }
       if (!move.playedMove.classification) {
         move.playedMove.classification = MoveClassification.book;
+      }
+      if (
+        prevMove &&
+        prevMove.playedMove?.classification === MoveClassification.mistake &&
+        move.playedMove?.classification === MoveClassification.mistake
+      ) {
+        move.playedMove.classification = MoveClassification.miss;
       }
     }
     return JSON.parse(JSON.stringify(move));
@@ -288,6 +307,39 @@ export class StockfishEngine {
       done: false,
     });
     const enginePool: StockfishEngine[] = [];
+
+    // const findBestMoveInForkedEngineSingle = async (move: Move) => {
+    //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    //   const self =
+    //     enginePool.shift() || new StockfishEngine((_type, _data) => {});
+    //   await self.reset();
+    //   self.setOption('UCI_AnalyseMode', 'true');
+    //   const stopDepth = depth + 1;
+    //   // await self.findBestMove(move.before, stopDepth);
+    //   await self.sendUci('position fen ' + move.before);
+    //   await self.sendUci('go infinity');
+    //   await self.waitForDepth(stopDepth);
+    //   //console.log('stop the engine search now');
+    //   await self.sendUci('stop');
+    //   await self.waitFor('bestmove');
+    //   const outData = await self.postEngineRun();
+    //   const bestLines = outData.lines.filter(
+    //     (x) => x.depth <= depth && x.pv.startsWith(outData.bestmove)
+    //   );
+
+    //   const playedLines = outData.lines.filter(
+    //     (x) => x.depth <= depth && x.pv.startsWith(move.lan)
+    //   );
+
+    //   enginePool.push(self);
+    //   return {
+    //     x: outData.lines,
+    //     best: { ...outData, lines: bestLines },
+    //     ...move,
+    //     playedMove: { ...outData, lines: playedLines, bestmove: move.lan },
+    //   };
+    // };
+
     const findBestMoveInForkedEngine = async (move: Move) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const self =
@@ -298,8 +350,9 @@ export class StockfishEngine {
       const playedMove = await self.searchMove(move.before, move.lan, depth);
 
       enginePool.push(self);
-      return { best, ...move, playedMove };
+      return { best, ...move, playedMove } as ReviewedMove;
     };
+    const start = Date.now();
     for await (const result of asyncPool(
       navigator.hardwareConcurrency || 8,
       moveWithIndex,
@@ -307,7 +360,7 @@ export class StockfishEngine {
     )) {
       current++;
 
-      analysysData.push(result as any);
+      analysysData.push(result);
       this.emitter('review-status', {
         total: moves.length,
         current,
@@ -317,6 +370,8 @@ export class StockfishEngine {
         done: current >= moves.length,
       });
     }
+
+    console.log('Review took %ms', Date.now() - start);
     analysysData.sort((x, y) => x.index - y.index);
     const classificationMoves = analysysData.map((x, index) =>
       this.moveClassification(x, analysysData[index - 1])
@@ -335,6 +390,10 @@ export class StockfishEngine {
     const reviewedData = {
       moves: classificationMoves,
       summary: {
+        elo: [
+          estimatePlayPerfomance(whiteMoves.map((x) => x.playedMove.lines[0])),
+          estimatePlayPerfomance(blackMoves.map((x) => x.playedMove.lines[0])),
+        ],
         accuracy: [
           _.meanBy(whiteMoves, (x) => x.playedMove.accuracy),
           _.meanBy(blackMoves, (x) => x.playedMove.accuracy),

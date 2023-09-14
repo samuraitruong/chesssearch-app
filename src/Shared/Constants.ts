@@ -36,3 +36,16 @@ export const MoveClassificationIcons = {
   [MoveClassification.book]: book,
   [MoveClassification.excellent]: excellent,
 };
+
+export const MoveClassificationColors = {
+  [MoveClassification.good]: '#96af8b',
+  [MoveClassification.best]: '#95bb4a',
+  [MoveClassification.miss]: '#ee6b55',
+  [MoveClassification.great]: '#5c8bb0',
+  [MoveClassification.blunder]: '#ca3431',
+  [MoveClassification.mistake]: '#e58f2a',
+  [MoveClassification.inaccuracy]: '#f0c15c',
+  [MoveClassification.briliant]: '#1baca6',
+  [MoveClassification.book]: '#a88865',
+  [MoveClassification.excellent]: '#96bc4b',
+};
