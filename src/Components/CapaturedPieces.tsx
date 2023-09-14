@@ -3,7 +3,7 @@ import bg from './icons/captured-pieces.png?url';
 import './CapturedPiece.css';
 
 interface CapturedPiecesProps {
-  capturedPieces: string[];
+  capturedPieces?: string[];
   color: string;
   point: number;
 }

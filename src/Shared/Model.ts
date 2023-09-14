@@ -28,6 +28,12 @@ export interface ReviewedLine extends StockfishLine {
   marterial: number;
   moves: Move[];
 }
+export interface PieceCaptureAccumulate {
+  w: string[];
+  b: string[];
+  wPoint: number;
+  bPoint: number;
+}
 export interface BestMoveOutput {
   bestmove: string;
   ponder: string;
@@ -55,7 +61,7 @@ export interface StockfishLine {
 export interface ReviewedMove extends Move {
   best: ReviewedMoveOutput;
   playedMove: ReviewedMoveOutput;
-  captured_pieces: any;
+  captured_pieces: PieceCaptureAccumulate;
   index: number;
 }
 // https://lichess.org/page/accuracy

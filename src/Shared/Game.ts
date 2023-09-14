@@ -1,5 +1,5 @@
 import { Chess } from 'chess.js';
-import { ReviewedLine, StockfishLine } from './Model';
+import { PieceCaptureAccumulate, ReviewedLine, StockfishLine } from './Model';
 
 // export class Game extends Chess {
 //   constructor(fen: string) {
@@ -59,7 +59,7 @@ export function simulateGame(moves: string[], startFen?: string) {
   for (const move of moves) {
     simulateGame.move(move.replace('#', ''));
   }
-  const captured: any = {
+  const captured: PieceCaptureAccumulate = {
     wPoint: 0,
     w: [],
     b: [],
@@ -74,8 +74,9 @@ export function simulateGame(moves: string[], startFen?: string) {
   };
   const lines = simulateGame.history({ verbose: true }).map((move) => {
     if (move.captured) {
-      const pointName = move.color + 'Point';
-      captured[pointName] += points[move.captured];
+      if (move.color === 'w') {
+        captured.wPoint += points[move.captured];
+      } else captured.bPoint += points[move.captured];
       captured[move.color].push(move.captured as string);
     }
     return { ...move, captured_pieces: JSON.parse(JSON.stringify(captured)) };
@@ -84,12 +85,30 @@ export function simulateGame(moves: string[], startFen?: string) {
 }
 
 export function reviewMoveLine(fen: string, line: StockfishLine): ReviewedLine {
+  const [, color] = fen.split(' ');
   const moves = simulateGame(line.pv.split(' '), fen);
+  const lastMove = moves[moves.length - 1];
+  let materialDiff =
+    lastMove.captured_pieces.wPoint - lastMove.captured_pieces.bPoint;
+  if (color === 'b') {
+    materialDiff = -materialDiff;
+  }
+  let description = `This move make review text to explain more`;
 
+  if (materialDiff > 0) {
+    description = `You win ${Math.abs(
+      materialDiff
+    )} material point after all the moves`;
+  }
+  if (materialDiff < 0) {
+    description = `You lose ${Math.abs(
+      materialDiff
+    )} material points afer all the trade`;
+  }
   return {
+    description,
     ...line,
-    description: `This move make review text to explain more`,
-    marterial: 0,
+    marterial: materialDiff,
     moves,
   };
 }

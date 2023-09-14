@@ -9,9 +9,11 @@ import _ from 'lodash';
 import { MoveClassification } from '../Shared/Constants';
 import { BestMoveOutput, ReviewedMove } from '../Shared/Model';
 import { reviewMoveLine } from '../Shared/Game';
+import { sortStockfishLine } from '../Shared/Utils';
 
 export class StockfishEngine {
   private outputs: string[] = [];
+  private enginePool: StockfishEngine[] = [];
   private data: BestMoveOutput = {
     lines: [],
     bestmove: '',
@@ -150,8 +152,8 @@ export class StockfishEngine {
     const mates = this.data.lines?.filter((x) => x.score.type === 'mate') || [];
     const normal = this.data.lines?.filter((x) => x.score.type === 'cp') || [];
 
-    mates.sort((a, b) => b.score.value - a.score.value);
-    normal.sort((a, b) => b.score.value - a.score.value);
+    mates.sort(sortStockfishLine);
+    normal.sort(sortStockfishLine);
 
     this.data.lines = [...mates, ...normal];
 
@@ -170,10 +172,18 @@ export class StockfishEngine {
     this.sendUci(`setoption name ${key} value ${value}\n`);
   }
   public quit() {
-    this.sendUci('stop');
-    this.sendUci('quit');
-    this.engine.terminate();
-    this.isTerminated = true;
+    const stopEngine = (e: StockfishEngine) => {
+      e.sendUci('stop');
+      e.sendUci('quit');
+      e.engine.terminate();
+      e.isTerminated = true;
+      console.log('stop engines');
+    };
+    stopEngine(this);
+    while (this.enginePool.length > 0) {
+      const poolEngine = this.enginePool.pop();
+      if (poolEngine) stopEngine(poolEngine);
+    }
   }
   async waitForReady() {
     this.sendUci('isready');
@@ -280,6 +290,17 @@ export class StockfishEngine {
       if (!move.playedMove.classification) {
         move.playedMove.classification = MoveClassification.book;
       }
+      if (move.playedMove?.classification === MoveClassification.mistake) {
+        if (
+          move &&
+          move.best?.bestLine?.marterial &&
+          move.playedMove?.bestLine?.marterial &&
+          move.playedMove?.bestLine?.marterial > 0 &&
+          move.playedMove?.bestLine?.marterial < move.best?.bestLine?.marterial
+        ) {
+          move.playedMove.classification = MoveClassification.miss;
+        }
+      }
       if (
         prevMove &&
         prevMove.playedMove?.classification === MoveClassification.mistake &&
@@ -306,7 +327,6 @@ export class StockfishEngine {
       depth,
       done: false,
     });
-    const enginePool: StockfishEngine[] = [];
 
     // const findBestMoveInForkedEngineSingle = async (move: Move) => {
     //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -342,14 +362,18 @@ export class StockfishEngine {
 
     const findBestMoveInForkedEngine = async (move: Move) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const self =
-        enginePool.shift() || new StockfishEngine((_type, _data) => {});
+      const executeEngine =
+        this.enginePool.shift() || new StockfishEngine((_type, _data) => {});
       // self.setOption('UCI_AnalyseMode', 'true');
-      const best = await self.findBestMove(move.before, depth);
+      const best = await executeEngine.findBestMove(move.before, depth);
 
-      const playedMove = await self.searchMove(move.before, move.lan, depth);
+      const playedMove = await executeEngine.searchMove(
+        move.before,
+        move.lan,
+        depth
+      );
 
-      enginePool.push(self);
+      this.enginePool.push(executeEngine);
       return { best, ...move, playedMove } as ReviewedMove;
     };
     const start = Date.now();
@@ -376,9 +400,7 @@ export class StockfishEngine {
     const classificationMoves = analysysData.map((x, index) =>
       this.moveClassification(x, analysysData[index - 1])
     );
-    for (const e of enginePool) {
-      e.quit();
-    }
+
     const whiteMoves = analysysData.filter((x) => x.color === 'w');
     const blackMoves = analysysData.filter((x) => x.color === 'b');
 

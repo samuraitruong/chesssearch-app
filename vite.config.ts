@@ -19,12 +19,15 @@ export default defineConfig({
           if (id.indexOf('react-chessboard') >= 0) {
             return 'react-chessboard';
           }
-          if (id.indexOf('instantsearch') >= 0) {
+          if (id.indexOf('search') >= 0) {
             return 'search';
           }
 
           if (id.indexOf('icons') >= 0) {
             return 'icons';
+          }
+          if (id.indexOf('chart') >= 0) {
+            return 'chart';
           }
         },
       },

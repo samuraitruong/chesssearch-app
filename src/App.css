@@ -101,3 +101,7 @@ em {
 .move-classification-miss {
   color: #ee6b55
 }
+.idui-popover {
+  width: 0px;
+  height: 0px;
+}

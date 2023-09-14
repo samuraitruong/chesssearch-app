@@ -19,7 +19,7 @@ import { GameData, ReviewedMove, StockfishLine } from '../Shared/Model';
 import EloSummary from './EloSummary';
 import { simulateGame } from '../Shared/Game';
 import { LineReview } from './LineReview';
-
+import MoveChart from './MoveChart';
 const SF_DEPTH = import.meta.env.VITE_SF_DEPTH || 18;
 
 interface GameViewerProps {
@@ -27,6 +27,7 @@ interface GameViewerProps {
 }
 
 export function GameViewer({ data }: GameViewerProps) {
+  const lineRefs = useRef<any>([]);
   const [currentMove, setCurrentMove] = useState<ReviewedMove>();
   const blackElo = useRef() as React.MutableRefObject<HTMLDivElement>;
   const whiteElo = useRef() as React.MutableRefObject<HTMLDivElement>;
@@ -74,6 +75,15 @@ export function GameViewer({ data }: GameViewerProps) {
 
     if (item) {
       console.log(item);
+      // scrolling
+      const itemRef = lineRefs.current[
+        Math.floor(currentMoveIndex / 2)
+      ] as HTMLDivElement;
+      const rect = itemRef.getBoundingClientRect();
+      if (rect.y > height - 200) {
+        itemRef.scrollIntoView();
+      }
+      console.log(itemRef.getBoundingClientRect());
       if (!isMute) {
         playSound(item);
       }
@@ -258,8 +268,8 @@ export function GameViewer({ data }: GameViewerProps) {
               capturedPieces={currentMove?.captured_pieces.b}
               color="w"
               point={
-                currentMove?.captured_pieces?.bPoint -
-                currentMove?.captured_pieces?.wPoint
+                (currentMove?.captured_pieces?.bPoint || 0) -
+                (currentMove?.captured_pieces?.wPoint || 0)
               }
             />
           </div>
@@ -280,8 +290,8 @@ export function GameViewer({ data }: GameViewerProps) {
               capturedPieces={currentMove?.captured_pieces.w}
               color="b"
               point={
-                currentMove?.captured_pieces?.wPoint -
-                currentMove?.captured_pieces?.bPoint
+                (currentMove?.captured_pieces?.wPoint || 0) -
+                (currentMove?.captured_pieces?.bPoint || 0)
               }
             />
           </div>
@@ -339,21 +349,26 @@ export function GameViewer({ data }: GameViewerProps) {
           style={{ maxHeight: boardSize + 100 }}
         >
           {reviewData && reviewData.summary ? (
-            <ReviewSummary
-              data={reviewData.summary}
-              result={data.Result}
-              clickOnSummaryItem={clickOnSummaryItem}
-            />
+            <>
+              <MoveChart reviewData={reviewData} />
+
+              <ReviewSummary
+                data={reviewData.summary}
+                result={data.Result}
+                clickOnSummaryItem={clickOnSummaryItem}
+              />
+            </>
           ) : (
             <div className="p-3 text-3xl text-center font-bold border border-solid mb-4">
               {data.Result || data.result}
             </div>
           )}
           {pairMoves?.map(([white, black], index) => (
-            <div key={index}>
+            <div key={index} ref={(ref) => (lineRefs.current[index] = ref)}>
               <div
                 className="flex w-full items-center border-b border-dashed border-gray-300 mb-1"
                 key={index}
+                data-move-index={Math.round(index / 2)}
               >
                 <span className="text-right w-[25px] block mr-2">
                   {index + 1}.

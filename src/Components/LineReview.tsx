@@ -45,9 +45,13 @@ function DisplayReviewedMoveOutput({
           {eloText}
         </div>
       </div>
-      <p>{bestLine.description}</p>
+      <p className="py-2">{bestLine.description}</p>
       {bestLine.moves.map((m) => (
         <Popover
+          lazy={true}
+          className="aaaa"
+          zIndex={50}
+          closeOnEscape={true}
           content={
             <MiniBoard
               position={m.after}
@@ -56,9 +60,12 @@ function DisplayReviewedMoveOutput({
             />
           }
           trigger={PopoverTriggerType.hover}
-          key={m.san + m.lan}
+          key={m.san + m.lan + m.to}
         >
-          <span className="pointer font-semibold text-gray-500"> {m.san}</span>
+          <span className="pointer font-semibold text-gray-500 pr-1 z-50">
+            {' '}
+            {m.san}
+          </span>
         </Popover>
       ))}
     </div>
