@@ -8,7 +8,7 @@ import asyncPool from 'tiny-async-pool';
 import _ from 'lodash';
 import { MoveClassification } from '../Shared/Constants';
 import { BestMoveOutput, ReviewedMove } from '../Shared/Model';
-import { reviewMoveLine } from '../Shared/Game';
+import { advanceCompareReview, reviewMoveLine } from '../Shared/Game';
 import { sortStockfishLine } from '../Shared/Utils';
 
 export class StockfishEngine {
@@ -222,7 +222,7 @@ export class StockfishEngine {
     return this.postEngineRun();
   }
 
-  moveClassification(move: ReviewedMove, prevMove: ReviewedMove) {
+  simpleClassificationByAccuracy(move: ReviewedMove, prevMove: ReviewedMove) {
     const classification = 'book';
     let accuracy = 100;
 
@@ -276,40 +276,43 @@ export class StockfishEngine {
 
       // move.winChanceDiff = winChanceDiff;
       for (const [diffV, cl] of mappings) {
-        if (move.san === 'Nf6') {
-          // console.log('debug', diff, diffV, diff <= diffV);
-        }
         if (winChanceDiff <= (diffV as number)) {
           move.playedMove.classification = cl as MoveClassification;
           break;
         }
       }
-      if (move.playedMove.bestmove === move.best.bestmove) {
+      if (
+        move.playedMove.bestmove === move.best.bestmove &&
+        ![MoveClassification.great, MoveClassification.briliant].includes(
+          move.playedMove.classification
+        )
+      ) {
         move.playedMove.classification = MoveClassification.best;
       }
-      if (!move.playedMove.classification) {
-        move.playedMove.classification = MoveClassification.book;
-      }
-      if (move.playedMove?.classification === MoveClassification.mistake) {
-        if (
-          move &&
-          move.best?.bestLine?.marterial &&
-          move.playedMove?.bestLine?.marterial &&
-          move.playedMove?.bestLine?.marterial > 0 &&
-          move.playedMove?.bestLine?.marterial < move.best?.bestLine?.marterial
-        ) {
-          move.playedMove.classification = MoveClassification.miss;
-        }
-      }
-      if (
-        prevMove &&
-        prevMove.playedMove?.classification === MoveClassification.mistake &&
-        move.playedMove?.classification === MoveClassification.mistake
-      ) {
-        move.playedMove.classification = MoveClassification.miss;
-      }
+
+      // if (!move.playedMove.classification) {
+      //   move.playedMove.classification = MoveClassification.book;
+      // }
+      // if (move.playedMove?.classification === MoveClassification.mistake) {
+      //   if (
+      //     move &&
+      //     move.best?.bestLine?.marterial &&
+      //     move.playedMove?.bestLine?.marterial &&
+      //     move.playedMove?.bestLine?.marterial > 0 &&
+      //     move.playedMove?.bestLine?.marterial < move.best?.bestLine?.marterial
+      //   ) {
+      //     move.playedMove.classification = MoveClassification.miss;
+      //   }
+      // }
+      // if (
+      //   prevMove &&
+      //   prevMove.playedMove?.classification === MoveClassification.mistake &&
+      //   move.playedMove?.classification === MoveClassification.mistake
+      // ) {
+      //   move.playedMove.classification = MoveClassification.miss;
+      // }
     }
-    return JSON.parse(JSON.stringify(move));
+    return { ...move };
   }
 
   async reviewGame(moves: Move[], depth = 18) {
@@ -395,10 +398,13 @@ export class StockfishEngine {
       });
     }
 
-    console.log('Review took %ms', Date.now() - start);
+    console.log('Review took %d ms', Date.now() - start);
     analysysData.sort((x, y) => x.index - y.index);
-    const classificationMoves = analysysData.map((x, index) =>
-      this.moveClassification(x, analysysData[index - 1])
+    let classificationMoves = analysysData.map((x, index) =>
+      this.simpleClassificationByAccuracy(x, analysysData[index - 1])
+    );
+    classificationMoves = classificationMoves.map((move, index) =>
+      advanceCompareReview(move, classificationMoves[index - 1])
     );
 
     const whiteMoves = analysysData.filter((x) => x.color === 'w');

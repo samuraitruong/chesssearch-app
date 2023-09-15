@@ -8,13 +8,16 @@ import Popover, { PopoverTriggerType } from '@idui/react-popover';
 import { MiniBoard } from './MiniBoard';
 interface LineReviewProps {
   move?: ReviewedMove;
+  onShowMove: (move: ReviewedMoveOutput) => void;
 }
 
 function DisplayReviewedMoveOutput({
   move,
   overwriteClassification,
+  onShowMove,
 }: {
   move: ReviewedMoveOutput;
+  onShowMove: (move: ReviewedMoveOutput) => void;
   overwriteClassification?: MoveClassification;
 }) {
   const { classification, bestLine } = move;
@@ -23,8 +26,12 @@ function DisplayReviewedMoveOutput({
     return <></>;
   }
   const eloChanged = +(bestLine.score.value / 100).toFixed(1);
-  const eloText =
-    eloChanged > 0 ? `+${eloChanged}` : `-${Math.abs(eloChanged)}`;
+  let eloText = eloChanged > 0 ? `+${eloChanged}` : `-${Math.abs(eloChanged)}`;
+
+  if (bestLine.score.type === 'mate') {
+    const sign = bestLine.score.value < 0 ? '-' : '';
+    eloText = `${sign}M${Math.abs(bestLine.score.value)}`;
+  }
   return (
     <div className="py-3">
       <div className="flex justify-between mb-2">
@@ -46,33 +53,43 @@ function DisplayReviewedMoveOutput({
         </div>
       </div>
       <p className="py-2">{bestLine.description}</p>
-      {bestLine.moves.map((m) => (
-        <Popover
-          lazy={true}
-          className="aaaa"
-          zIndex={50}
-          closeOnEscape={true}
-          content={
-            <MiniBoard
-              position={m.after}
-              size={200}
-              arrows={[[m.from, m.to]]}
-            />
-          }
-          trigger={PopoverTriggerType.hover}
-          key={m.san + m.lan + m.to}
+      <div className="mb-3">
+        {bestLine.moves.map((m) => (
+          <Popover
+            lazy={true}
+            className="aaaa"
+            zIndex={50}
+            closeOnEscape={true}
+            content={
+              <MiniBoard
+                position={m.after}
+                size={200}
+                arrows={[[m.from, m.to]]}
+              />
+            }
+            trigger={PopoverTriggerType.hover}
+            key={m.san + m.lan + m.to}
+          >
+            <span className="pointer font-semibold text-gray-500 pr-1 z-50">
+              {' '}
+              {m.san}
+            </span>
+          </Popover>
+        ))}
+      </div>
+      <div className="text-center w-full m-3">
+        <button
+          className="rounded-sm bg-green-300 p-2 font-semibold"
+          onClick={() => onShowMove(move)}
         >
-          <span className="pointer font-semibold text-gray-500 pr-1 z-50">
-            {' '}
-            {m.san}
-          </span>
-        </Popover>
-      ))}
+          Show Moves
+        </button>
+      </div>
     </div>
   );
 }
 
-export function LineReview({ move }: LineReviewProps) {
+export function LineReview({ move, onShowMove }: LineReviewProps) {
   if (!move || !move.playedMove || !move.playedMove.bestLine) {
     return <></>;
   }
@@ -83,16 +100,25 @@ export function LineReview({ move }: LineReviewProps) {
     <div className="p-3 border">
       {showPlayedMove && (
         <div>
-          <DisplayReviewedMoveOutput move={move.playedMove} />
           <DisplayReviewedMoveOutput
-            move={move.best}
-            overwriteClassification={MoveClassification.best}
+            move={move.playedMove}
+            onShowMove={onShowMove}
           />
+          {![MoveClassification.briliant, MoveClassification.great].includes(
+            move.playedMove.classification
+          ) && (
+            <DisplayReviewedMoveOutput
+              onShowMove={onShowMove}
+              move={move.best}
+              overwriteClassification={MoveClassification.best}
+            />
+          )}
         </div>
       )}
 
       {!showPlayedMove && (
         <DisplayReviewedMoveOutput
+          onShowMove={onShowMove}
           move={move.best}
           overwriteClassification={MoveClassification.best}
         />

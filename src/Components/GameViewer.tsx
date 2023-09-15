@@ -15,11 +15,12 @@ import CapturedPieces from './CapaturedPieces';
 import { playSound } from '../Shared/Media';
 import { CustomSquareRenderer } from './CustomSquareRenderer';
 import { MoveClassification } from '../Shared/Constants';
-import { GameData, ReviewedMove, StockfishLine } from '../Shared/Model';
+import { GameData, ReviewedMove, ReviewedMoveOutput } from '../Shared/Model';
 import EloSummary from './EloSummary';
-import { simulateGame } from '../Shared/Game';
+import { simulateInitialGame } from '../Shared/Game';
 import { LineReview } from './LineReview';
 import MoveChart from './MoveChart';
+import { EloBar } from './EloBar';
 const SF_DEPTH = import.meta.env.VITE_SF_DEPTH || 18;
 
 interface GameViewerProps {
@@ -29,9 +30,6 @@ interface GameViewerProps {
 export function GameViewer({ data }: GameViewerProps) {
   const lineRefs = useRef<any>([]);
   const [currentMove, setCurrentMove] = useState<ReviewedMove>();
-  const blackElo = useRef() as React.MutableRefObject<HTMLDivElement>;
-  const whiteElo = useRef() as React.MutableRefObject<HTMLDivElement>;
-  const [eloText, setEloText] = useState('0.0');
   const [arrow, setArrow] = useState<Square[][]>([]);
   const [moveList, setMoveList] = useState<ReviewedMove[]>([]);
   const { engine, bestMoveResult, reviewData, reviewStatus } = useStockfish();
@@ -105,36 +103,6 @@ export function GameViewer({ data }: GameViewerProps) {
   }, [currentMoveIndex, isMute, moveList]);
 
   useEffect(() => {
-    if (bestMoveResult && bestMoveResult.bestmove && bestMoveResult.position) {
-      const [, player] = bestMoveResult.position.split(' ');
-      const bestMove = bestMoveResult.lines.find((x: StockfishLine) =>
-        x.pv.startsWith(bestMoveResult.bestmove)
-      );
-      if (!bestMove) {
-        return;
-      }
-      const score = bestMove.score.value / 100;
-
-      const p = bestMove.winChance;
-      if (bestMove.score.type === 'mate') {
-        setEloText(`M${Math.abs(bestMove.score.value).toFixed(0)}`);
-      } else {
-        setEloText(Math.abs(score).toFixed(1));
-      }
-
-      if (whiteElo.current && blackElo.current) {
-        if (player === 'w') {
-          whiteElo.current.style.height = p + '%';
-          blackElo.current.style.height = 100 - p + '%';
-        } else {
-          whiteElo.current.style.height = 100 - p + '%';
-          blackElo.current.style.height = p + '%';
-        }
-      }
-    }
-  }, [bestMoveResult]);
-
-  useEffect(() => {
     let intervalId: number = 0;
 
     if (isPlaying) {
@@ -158,7 +126,7 @@ export function GameViewer({ data }: GameViewerProps) {
   }, [isPlaying, moveList.length, currentMoveIndex]);
 
   useEffect(() => {
-    const lines = simulateGame(data.Moves) as ReviewedMove[];
+    const lines = simulateInitialGame(data.Moves) as ReviewedMove[];
     setMoveList(lines);
   }, [data.Moves]);
 
@@ -187,6 +155,21 @@ export function GameViewer({ data }: GameViewerProps) {
   };
   const toggleSpeaker = () => {
     setMute(!isMute);
+  };
+  const onShowMove = (rMove: ReviewedMoveOutput) => {
+    let index = 1;
+    for (const m of rMove.bestLine?.moves || []) {
+      setTimeout(() => {
+        if (!isMute) {
+          playSound(m);
+        }
+        console.log(m);
+        setArrow([[m.from, m.to]]);
+        engine?.findBestMove(m.after, SF_DEPTH);
+        setFen(m.after);
+      }, index * 1000);
+      index++;
+    }
   };
   const handleDownload = () => {
     const element = document.createElement('a');
@@ -243,19 +226,7 @@ export function GameViewer({ data }: GameViewerProps) {
       <div className="pt-1 text-center">{data.ECO}</div>
 
       <div className="flex">
-        <div className="elo-bar my-10 relative" style={{ height: boardSize }}>
-          <div className="absolute text-xs w-full pt-1 text-white text-center">
-            {eloText}
-          </div>
-          <div
-            className="w-full h-[50%] bg-black-100 transition-height duration-300 ease-linear"
-            ref={blackElo}
-          ></div>
-          <div
-            className="w-full h-[50%] bg-green-500 transition-height duration-300 ease-linear"
-            ref={whiteElo}
-          ></div>
-        </div>
+        <EloBar bestMoveResult={bestMoveResult} height={boardSize} />
 
         <div className="flex flex-col">
           <div
@@ -400,7 +371,7 @@ export function GameViewer({ data }: GameViewerProps) {
               {(currentMoveIndex == index * 2 ||
                 index * 2 + 1 === currentMoveIndex) &&
                 currentMove?.playedMove?.bestLine && (
-                  <LineReview move={currentMove} />
+                  <LineReview move={currentMove} onShowMove={onShowMove} />
                 )}
             </div>
           ))}

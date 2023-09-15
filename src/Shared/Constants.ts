@@ -49,3 +49,7 @@ export const MoveClassificationColors = {
   [MoveClassification.book]: '#a88865',
   [MoveClassification.excellent]: '#96bc4b',
 };
+
+export const PieceNames: { [x: string]: string } = {
+  p: 'pawn',
+};

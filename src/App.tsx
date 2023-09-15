@@ -20,6 +20,7 @@ import { GameViewer } from './Components/GameViewer';
 import { HitCard } from './Components/HitCard';
 import { TableHit } from './Components/TableHit';
 import algoliasearch from 'algoliasearch';
+import { OpenPgn } from './Components/OpenPgn';
 
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   server: {
@@ -52,7 +53,7 @@ const searchClient =
 
 export default function App() {
   const [game, setGame] = useState<any>();
-  const [displayMode, setDisplayMode] = useState<any>('card');
+  const [displayMode, setDisplayMode] = useState<string>('card');
 
   const handleHitClick = (item: any) => {
     setGame(item);
@@ -61,7 +62,7 @@ export default function App() {
     import.meta.env.VITE_ALGOLIA_INDEX ||
     import.meta.env.VITE_INDEX_NAME ||
     'chessgames';
-  const handleModeChange = (type: any) => {
+  const handleModeChange = (type: string) => {
     setDisplayMode(type);
   };
   const yearAttribute = import.meta.env.VITE_ALGOLIA_APP_ID ? 'year' : 'Year';
@@ -151,7 +152,11 @@ export default function App() {
             </div>
 
             <div className="w-1/2 justify-end flex">
-              <DisplaySelector onChange={handleModeChange} mode={displayMode} />
+              <DisplaySelector
+                onChange={handleModeChange}
+                mode={displayMode as any}
+              />
+              <OpenPgn onGameLoad={(g) => setGame(g)} />
             </div>
           </div>
           {displayMode === 'card' && (

@@ -44,10 +44,11 @@ export interface BestMoveOutput {
 
 export interface ReviewedMoveOutput extends BestMoveOutput {
   accuracy?: number;
-  classification?: MoveClassification;
+  classification: MoveClassification;
+  affectedRule?: string;
 }
 export interface StockfishLine {
-  winChance?: number;
+  winChance: number;
   pv: string;
   depth: number;
   multipv: number;
