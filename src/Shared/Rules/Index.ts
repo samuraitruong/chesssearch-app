@@ -8,6 +8,8 @@ import { hugeMaterialMiss } from './hugeMaterialMiss';
 import { missMateRule } from './missMateRule';
 import { winMoreMaterialAfterTrade } from './winMoreMaterial';
 import { blunderQueenRule } from './blunderQueen';
+import { lostMaterialRule } from './lostMaterialRule';
+import { missMaterialWinRule } from './missMaterialWinRule';
 
 export function applyReviewRules(
   input: ReviewedMove,
@@ -19,7 +21,9 @@ export function applyReviewRules(
     continueMateRule(input, previousMove) ||
     forceCheckMateRule(input) ||
     missMateRule(input) ||
+    missMaterialWinRule(input) ||
     hugeMaterialMiss(input) ||
+    lostMaterialRule(input) ||
     greatWinMaterial(input) ||
     freeMaterialRule(input) ||
     inaccuracyTradeRule(input) ||

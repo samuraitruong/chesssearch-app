@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import bg from './icons/captured-pieces.png?url';
-import './CapturedPiece.css';
+import './CapturedPieces.css';
 
 interface CapturedPiecesProps {
   capturedPieces?: string[];

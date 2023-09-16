@@ -55,7 +55,7 @@ export function greatWinMaterial(input: ReviewedMove) {
           bestPointAcc.b.includes('q') &&
           !bestPointAcc.w.includes('q')
         ) {
-          best.bestLine.description = `Make a benefit trade oppoment's Queen`;
+          best.bestLine.description = `This great move help you gain more material, including your opponent's queen."`;
           best.classification = MoveClassification.great;
           input.best.affectedRule = 'greatWinMaterial';
         }

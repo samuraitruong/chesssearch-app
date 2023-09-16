@@ -22,6 +22,9 @@ export function blunderQueenRule(input: ReviewedMove) {
       playedMove.bestLine.description = 'You give away your queen';
       playedMove.affectedRule = 'blunderQueenRule';
       playedMove.classification = MoveClassification.blunder;
+      if (best.bestmove !== playedMove.bestmove) {
+        best.bestLine.description = 'This move will help you save your Queen';
+      }
       return input;
     }
 
@@ -29,6 +32,9 @@ export function blunderQueenRule(input: ReviewedMove) {
       playedMove.bestLine.description = 'You give away your queen';
       playedMove.affectedRule = 'blunderQueenRule';
       playedMove.classification = MoveClassification.blunder;
+      if (best.bestmove !== playedMove.bestmove) {
+        best.bestLine.description = 'This move will help you save your Queen';
+      }
       return input;
     }
   }

@@ -11,7 +11,7 @@ import useViewport from '../Hooks/useViewport';
 import ReviewLoading from './ReviewLoading';
 import ReviewSummary from './ReviewSummary';
 import { partitionListIntoPairs, findPiecePosition } from '../Shared/Utils';
-import CapturedPieces from './CapaturedPieces';
+import CapturedPieces from './CapturedPieces';
 import { playSound } from '../Shared/Media';
 import { CustomSquareRenderer } from './CustomSquareRenderer';
 import { MoveClassification } from '../Shared/Constants';

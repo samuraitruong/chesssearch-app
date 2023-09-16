@@ -6,6 +6,7 @@ import {
 import { ReviewedMove, ReviewedMoveOutput } from '../Shared/Model';
 import Popover, { PopoverTriggerType } from '@idui/react-popover';
 import { MiniBoard } from './MiniBoard';
+import { BiSolidChess } from 'react-icons/bi';
 interface LineReviewProps {
   move?: ReviewedMove;
   onShowMove: (move: ReviewedMoveOutput) => void;
@@ -111,9 +112,10 @@ function DisplayReviewedMoveOutput({
       </div>
       <div className="text-center w-full m-3">
         <button
-          className="rounded-sm bg-green-300 p-2 font-semibold hover:bg-blue-700 hover:text-white"
+          className="rounded-sm text-sm bg-green-300 p-2 font-semibold hover:bg-blue-700 hover:text-white"
           onClick={() => onShowMove(move)}
         >
+          <BiSolidChess className="inline" />
           Show Moves
         </button>
       </div>
