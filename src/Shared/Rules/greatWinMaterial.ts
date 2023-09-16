@@ -22,7 +22,7 @@ export function greatWinMaterial(input: ReviewedMove) {
         pointAcc.w.includes('q') &&
         !pointAcc.b.includes('q')
       ) {
-        playedMove.bestLine.description = `It always great to capture oppoment's Queen`;
+        playedMove.bestLine.description = `It always great to capture opponent's Queen`;
         playedMove.classification = MoveClassification.great;
         input.playedMove.affectedRule = 'greatWinMaterial';
 
@@ -31,7 +31,7 @@ export function greatWinMaterial(input: ReviewedMove) {
           bestPointAcc.w.includes('q') &&
           !bestPointAcc.b.includes('q')
         ) {
-          best.bestLine.description = `It always great to capture oppoment's Queen`;
+          best.bestLine.description = `It always great to capture opponent's Queen`;
           best.classification = MoveClassification.great;
           input.best.affectedRule = 'greatWinMaterial';
         }
@@ -45,7 +45,7 @@ export function greatWinMaterial(input: ReviewedMove) {
         pointAcc.b.includes('q') &&
         !pointAcc.w.includes('q')
       ) {
-        playedMove.bestLine.description = `It always great to capture oppoment's Queen`;
+        playedMove.bestLine.description = `It always great to capture opponent's Queen`;
         playedMove.classification = MoveClassification.great;
         input.playedMove.affectedRule = 'greatWinMaterial';
 
