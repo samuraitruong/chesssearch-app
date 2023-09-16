@@ -28,7 +28,7 @@ function LineItem({
   return (
     <div className={`flex w-full justify-between ${cssName} text-sm`}>
       <div
-        className="pl-5 cursor-pointer"
+        className="pl-5 cursor-pointer font-semibold"
         onClick={() => clickOnSummaryItem('w', classification)}
       >
         {' '}
@@ -40,7 +40,7 @@ function LineItem({
       </div>
 
       <div
-        className="pr-5 cursor-pointer"
+        className="pr-5 cursor-pointer font-semibold"
         onClick={() => clickOnSummaryItem('b', classification)}
       >
         {' '}

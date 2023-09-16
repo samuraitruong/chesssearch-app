@@ -15,7 +15,10 @@ export function missMaterialWinRule(input: ReviewedMove) {
       playedMove.bestLine.description =
         'You miss the good change to win material';
 
-      if (playedMove.classification !== MoveClassification.blunder) {
+      if (
+        playedMove.classification !== MoveClassification.blunder &&
+        playedMove.bestmove !== best.bestmove
+      ) {
         playedMove.classification = MoveClassification.miss;
         best.bestLine.description =
           'You win material after all the good trades';
