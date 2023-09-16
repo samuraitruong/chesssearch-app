@@ -13,7 +13,7 @@ export function inaccuracyTradeRule(input: ReviewedMove) {
       if (best.bestLine.winChance || 0 > playedMove.bestLine.winChance) {
         // in this case, equally trade the material but possion is not good
         playedMove.bestLine.description =
-          'You overlooked the equally trade for material, After the trade you winning position is worser';
+          'You overlooked the equally important trade for materials, and as a result, your winning position has worsened after the trade.';
         playedMove.affectedRule = 'InaccuracyTradeRule';
         return input;
       }

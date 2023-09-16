@@ -8,7 +8,7 @@ import {
   CartesianGrid,
   ComposedChart,
 } from 'recharts';
-import { GameReview } from '../Shared/Model';
+import { GameReview, ReviewedMove } from '../Shared/Model';
 import { useMemo } from 'react';
 import {
   MoveClassification,
@@ -17,6 +17,7 @@ import {
 
 interface MoveChartProps {
   reviewData: GameReview;
+  onMoveClick?: (move: ReviewedMove) => void;
 }
 
 export function MoveChart({ reviewData }: MoveChartProps) {
@@ -28,7 +29,7 @@ export function MoveChart({ reviewData }: MoveChartProps) {
           style={{ backgroundColor: payload[0].payload.color }}
         >
           <span className="mx-3">{`${payload[0].payload.move}`}</span>
-          <span>{payload[0].payload.text}</span>
+          <span className="rounded-md">{payload[0].payload.text}</span>
         </div>
       );
     }
@@ -36,6 +37,16 @@ export function MoveChart({ reviewData }: MoveChartProps) {
     return null;
   };
 
+  const CustomizedDot = (props: { cx: number; cy: number; payload: any }) => {
+    const { cx, cy, payload } = props;
+    let color = 'tranparent';
+    let r = 0;
+    if (payload.showDot) {
+      color = payload.color;
+      r = 3;
+    }
+    return <circle cx={cx} cy={cy} r={r} fill={color} />;
+  };
   const data = useMemo(() => {
     if (!reviewData) {
       return [];
@@ -47,12 +58,18 @@ export function MoveChart({ reviewData }: MoveChartProps) {
         const eloChanged = +(
           move.playedMove.bestLine.score.value / 100
         ).toFixed(1);
-        const text = (eloChanged > 0 ? '+' : '') + eloChanged;
+        let text = (eloChanged > 0 ? '+' : '') + eloChanged;
+        if (move.playedMove.bestLine.score.type === 'mate') {
+          text = `${
+            move.playedMove.bestLine.score.value > 0 ? '+' : '-'
+          }M${Math.abs(move.playedMove.bestLine.score.value)}`;
+        }
         const moveText =
           move.color === 'w'
             ? `${Math.floor(index / 2) + 1}. ${move.san}`
             : `${Math.floor(index / 2) + 1}... ${move.san}`;
         chartData.push({
+          originalMove: move,
           move: moveText,
           text,
           index: index++,
@@ -90,6 +107,7 @@ export function MoveChart({ reviewData }: MoveChartProps) {
             dataKey="winChance"
             stroke="transparent"
             fill="#48ed42"
+            dot={CustomizedDot}
           />
           {/* <Line type="monotone" dataKey="winChance" stroke="#82ca9d" /> */}
         </ComposedChart>

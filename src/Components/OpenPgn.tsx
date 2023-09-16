@@ -73,7 +73,7 @@ export function OpenPgn({ onGameLoad }: OpenPgnProps) {
               {fileContent && (
                 <div>
                   <h2 className="text-xl font-bold mb-2">Game content:</h2>
-                  <pre className="bg-gray-100 mt-2 p-2 border rounded max-h-[75vh] overflow-y-auto">
+                  <pre className="bg-gray-100 mt-2 p-2 border rounded max-h-[75vh] overflow-y-auto text-sm">
                     {fileContent}
                   </pre>
                 </div>

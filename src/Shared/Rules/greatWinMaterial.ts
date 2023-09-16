@@ -10,13 +10,12 @@ export function greatWinMaterial(input: ReviewedMove) {
 
   const { best, playedMove, color } = input;
   if (best.bestLine && playedMove.bestLine) {
-    const pointAcc = (
-      playedMove.bestLine.moves[playedMove.bestLine.moves.length - 1] as any
-    ).captured_pieces as PieceCaptureAccumulate;
+    const pointAcc = playedMove.bestLine.moves[
+      playedMove.bestLine.moves.length - 1
+    ].captured_pieces as PieceCaptureAccumulate;
 
-    const bestPointAcc = (
-      best.bestLine.moves[best.bestLine.moves.length - 1] as any
-    ).captured_pieces as PieceCaptureAccumulate;
+    const bestPointAcc = best.bestLine.moves[best.bestLine.moves.length - 1]
+      .captured_pieces as PieceCaptureAccumulate;
     if (color === 'w') {
       if (
         playedMove.bestLine.marterial >= 0 &&
