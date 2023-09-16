@@ -9,7 +9,7 @@ export function forceCheckMateRule(input: ReviewedMove) {
 
     if (line.score.type === 'mate') {
       if (line.score.value < 0) {
-        playedMove.bestLine.description = `Oops, you've just made a significant error that sets up a force checkmate for your opponent in the next ${Math.abs(
+        playedMove.bestLine.description = `Oops, you've just made a significant error that sets up a force checkmate for your opponent in ${Math.abs(
           line.score.value
         )} moves. There's no way to prevent it now.`;
 

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { AiFillFileAdd } from 'react-icons/ai';
 import { Modal } from './Modal';
 import { parsePGN } from '../Shared/Pgn';
-
+import { BiCloudUpload } from 'react-icons/bi';
+import { MdOutlineReviews } from 'react-icons/md';
 interface OpenPgnProps {
   onGameLoad: (game: any) => void;
 }
@@ -50,7 +51,10 @@ export function OpenPgn({ onGameLoad }: OpenPgnProps) {
           <div className="container mx-auto mt-8 min-w-[400px]">
             <div className="flex justify-between">
               <label className="relative cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                <span>Select a PGN file</span>
+                <span>
+                  {' '}
+                  <BiCloudUpload className="inline mr-2" /> Select a PGN file
+                </span>
                 <input
                   type="file"
                   accept=".pgn, .txt"
@@ -61,10 +65,10 @@ export function OpenPgn({ onGameLoad }: OpenPgnProps) {
 
               {fileContent && (
                 <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                   onClick={openGame}
                 >
-                  View this game
+                  <MdOutlineReviews className="inline mr-2" /> View this game
                 </button>
               )}
             </div>

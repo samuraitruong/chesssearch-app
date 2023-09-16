@@ -8,10 +8,11 @@ export function continueMateRule(input: ReviewedMove, previous: ReviewedMove) {
     const line = playedMove.bestLine;
 
     if (
-      (line && line.score.type === 'mate') ||
+      line &&
+      line.score.type === 'mate' &&
       previous.playedMove.bestLine?.score.type === 'mate'
     ) {
-      if (line.score.value < 0) {
+      if (line.score.value > 0) {
         playedMove.bestLine.description = `You continue keep your force checkmate going. You will finish the game in  ${Math.abs(
           line.score.value
         )} moves. There's no way to prevent it now.`;
