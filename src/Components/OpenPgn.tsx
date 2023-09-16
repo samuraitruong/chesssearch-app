@@ -72,7 +72,7 @@ export function OpenPgn({ onGameLoad }: OpenPgnProps) {
             <div className="mt-4">
               {fileContent && (
                 <div>
-                  <h2 className="text-xl font-bold">File Content:</h2>
+                  <h2 className="text-xl font-bold mb-2">Game content:</h2>
                   <pre className="mt-2 p-2 border rounded">{fileContent}</pre>
                 </div>
               )}

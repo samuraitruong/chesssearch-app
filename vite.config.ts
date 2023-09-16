@@ -14,11 +14,9 @@ export default defineConfig({
       output: {
         manualChunks(id: string) {
           if (id.indexOf('react-chessboard') >= 0) {
-            return 'react-chessboard';
+            return 'chessboard';
           }
-          if (id.indexOf('react-chessboard') >= 0) {
-            return 'react-chessboard';
-          }
+
           if (id.indexOf('search') >= 0) {
             return 'search';
           }
@@ -26,7 +24,7 @@ export default defineConfig({
           if (id.indexOf('icons') >= 0) {
             return 'icons';
           }
-          if (id.indexOf('chart') >= 0) {
+          if (id.indexOf('recharts') >= 0) {
             return 'chart';
           }
         },

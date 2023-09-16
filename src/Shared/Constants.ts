@@ -52,4 +52,8 @@ export const MoveClassificationColors = {
 
 export const PieceNames: { [x: string]: string } = {
   p: 'pawn',
+  n: 'Knight',
+  r: 'Rook',
+  b: 'Bishop',
+  q: 'Queen',
 };

@@ -15,13 +15,21 @@ function DisplayReviewedMoveOutput({
   move,
   overwriteClassification,
   onShowMove,
+  startIndex,
 }: {
   move: ReviewedMoveOutput;
   onShowMove: (move: ReviewedMoveOutput) => void;
   overwriteClassification?: MoveClassification;
+  startIndex: number;
 }) {
   const { classification, bestLine } = move;
-  const cl = overwriteClassification || classification;
+  let index = Math.floor(startIndex / 2) + 1;
+
+  const cl = ![MoveClassification.briliant, MoveClassification.great].includes(
+    classification
+  )
+    ? overwriteClassification || classification
+    : classification;
   if (!cl || !bestLine) {
     return <></>;
   }
@@ -32,6 +40,7 @@ function DisplayReviewedMoveOutput({
     const sign = bestLine.score.value < 0 ? '-' : '';
     eloText = `${sign}M${Math.abs(bestLine.score.value)}`;
   }
+
   return (
     <div className="py-3">
       <div className="flex justify-between mb-2">
@@ -54,12 +63,33 @@ function DisplayReviewedMoveOutput({
       </div>
       <p className="py-2">{bestLine.description}</p>
       <div className="mb-3">
-        {bestLine.moves.map((m) => (
+        {bestLine.moves.map((m, i) => (
           <Popover
-            lazy={true}
-            className="aaaa"
+            animation={{
+              animate: {
+                opacity: 1,
+              },
+              exit: {
+                opacity: 0,
+                transition: {
+                  duration: 0.1,
+                },
+              },
+              initial: {
+                opacity: 0,
+              },
+            }}
+            lazy={false}
+            className={'pop' + i}
             zIndex={50}
             closeOnEscape={true}
+            onChangeOpen={(isOpen) => {
+              if (!isOpen) {
+                document.querySelector('.pop' + i)?.classList.add('hideme');
+              } else {
+                document.querySelector('.pop' + i)?.classList.remove('hideme');
+              }
+            }}
             content={
               <MiniBoard
                 position={m.after}
@@ -68,10 +98,12 @@ function DisplayReviewedMoveOutput({
               />
             }
             trigger={PopoverTriggerType.hover}
-            key={m.san + m.lan + m.to}
+            key={m.san + m.lan + m.to + i}
           >
-            <span className="pointer font-semibold text-gray-500 pr-1 z-50">
+            <span className="pointer font-semibold text-gray-500 pr-1 z-50 cursor-pointer hover:underline">
               {' '}
+              {m.color === 'w' ? `${index++}.` : ''}
+              {m.color === 'b' && i === 0 ? `${index++}...` : ' '}
               {m.san}
             </span>
           </Popover>
@@ -79,7 +111,7 @@ function DisplayReviewedMoveOutput({
       </div>
       <div className="text-center w-full m-3">
         <button
-          className="rounded-sm bg-green-300 p-2 font-semibold"
+          className="rounded-sm bg-green-300 p-2 font-semibold hover:bg-blue-700 hover:text-white"
           onClick={() => onShowMove(move)}
         >
           Show Moves
@@ -95,7 +127,6 @@ export function LineReview({ move, onShowMove }: LineReviewProps) {
   }
 
   const showPlayedMove = move.playedMove.bestmove !== move.best.bestmove;
-
   return (
     <div className="p-3 border">
       {showPlayedMove && (
@@ -103,12 +134,14 @@ export function LineReview({ move, onShowMove }: LineReviewProps) {
           <DisplayReviewedMoveOutput
             move={move.playedMove}
             onShowMove={onShowMove}
+            startIndex={move.index}
           />
           {![MoveClassification.briliant, MoveClassification.great].includes(
             move.playedMove.classification
           ) && (
             <DisplayReviewedMoveOutput
               onShowMove={onShowMove}
+              startIndex={move.index}
               move={move.best}
               overwriteClassification={MoveClassification.best}
             />
@@ -118,6 +151,7 @@ export function LineReview({ move, onShowMove }: LineReviewProps) {
 
       {!showPlayedMove && (
         <DisplayReviewedMoveOutput
+          startIndex={move.index}
           onShowMove={onShowMove}
           move={move.best}
           overwriteClassification={MoveClassification.best}

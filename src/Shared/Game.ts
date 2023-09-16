@@ -90,7 +90,7 @@ export function reviewMoveLine(fen: string, line: StockfishLine): ReviewedLine {
     ...line,
     marterial: materialDiff,
     moves,
-  };
+  } as any;
 }
 /**
  * This funtion to do final review, include compare the move and adjust bestline review/classification. This is not easy function, will need to do lots of if/else here

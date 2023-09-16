@@ -26,7 +26,11 @@ export interface ReviewedLine extends StockfishLine {
   elo?: number;
   description: string;
   marterial: number;
-  moves: Move[];
+  moves: EnrichedMove[];
+}
+export interface EnrichedMove extends Move {
+  captured_pieces: PieceCaptureAccumulate;
+  index: number;
 }
 export interface PieceCaptureAccumulate {
   w: string[];
@@ -59,11 +63,9 @@ export interface StockfishLine {
   };
 }
 
-export interface ReviewedMove extends Move {
+export interface ReviewedMove extends EnrichedMove {
   best: ReviewedMoveOutput;
   playedMove: ReviewedMoveOutput;
-  captured_pieces: PieceCaptureAccumulate;
-  index: number;
 }
 // https://lichess.org/page/accuracy
 

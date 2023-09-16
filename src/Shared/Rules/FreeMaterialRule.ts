@@ -3,6 +3,7 @@ import { ReviewedMove } from '../Model';
 
 export function freeMaterialRule(input: ReviewedMove) {
   const { best, playedMove } = input;
+
   if (best.bestLine && playedMove.bestLine) {
     if (
       best.bestLine?.marterial > playedMove.bestLine?.marterial &&
