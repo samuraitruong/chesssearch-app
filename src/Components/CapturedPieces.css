@@ -1,6 +1,6 @@
 /* Copy from chess.com */
 .captured-pieces-cpiece {
-    background-image: url(/bundles/web/images/sprites/captured-pieces.png);
+    background-image: url(./icons/captured-pieces.png);
     background-repeat: no-repeat;
     background-size: 68.3rem 61.1rem;
     display: inline-block;

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import bg from './icons/captured-pieces.png?url';
 import './CapturedPieces.css';
 
 interface CapturedPiecesProps {
@@ -38,9 +37,6 @@ function CapturedPieces({
         <span
           key={index}
           className={`captured-pieces-cpiece captured-pieces-${color}-${piece}`}
-          style={{
-            backgroundImage: `url(${bg})`,
-          }}
         ></span>
       ))}
       {point > 0 && <span className="text-2xl pl-5 pt-1"> +{point}</span>}
