@@ -13,6 +13,7 @@ import { sortStockfishLine } from '../Shared/Utils';
 
 export class StockfishEngine {
   private outputs: string[] = [];
+  private cache: { [x: string]: BestMoveOutput } = {};
   private enginePool: StockfishEngine[] = [];
   private data: BestMoveOutput = {
     lines: [],
@@ -148,7 +149,7 @@ export class StockfishEngine {
     this.data = { lines: [], bestmove: '', ponder: '', bestLine: undefined };
     this.outputs = [];
   }
-  async postEngineRun(): Promise<BestMoveOutput> {
+  async postEngineRun(updateCache = false): Promise<BestMoveOutput> {
     const mates = this.data.lines?.filter((x) => x.score.type === 'mate') || [];
     const normal = this.data.lines?.filter((x) => x.score.type === 'cp') || [];
 
@@ -177,6 +178,9 @@ export class StockfishEngine {
 
     const clonedData = { ...this.data };
     if (this.data) this.emitter('bestmove', clonedData);
+    if (updateCache && clonedData.position) {
+      this.cache[clonedData.position] = clonedData;
+    }
     return clonedData;
   }
 
@@ -203,6 +207,10 @@ export class StockfishEngine {
   }
 
   async findBestMove(position: string, depth = 18) {
+    if (this.cache[position]) {
+      this.emitter('bestmove', this.cache[position]);
+      return this.cache[position];
+    }
     const start = Date.now();
     await this.reset();
     await this.waitForReady();
@@ -217,7 +225,7 @@ export class StockfishEngine {
       Date.now() - start,
       depth
     );
-    return this.postEngineRun();
+    return await this.postEngineRun(true);
   }
 
   async searchMove(position: string, move: string, depth = 18) {
@@ -235,6 +243,7 @@ export class StockfishEngine {
   }
 
   simpleClassificationByAccuracy(move: ReviewedMove, prevMove: ReviewedMove) {
+    console.log(move, prevMove);
     const classification = 'book';
     let accuracy = 100;
 

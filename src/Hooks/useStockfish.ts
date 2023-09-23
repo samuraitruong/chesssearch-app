@@ -17,11 +17,9 @@ export function useStockfish() {
         new StockfishEngine((type, data) => {
           if (type === 'review') {
             setReviewData(data);
-            //console.log(data);
           }
 
           if (type === 'bestmove') {
-            //console.log(data);
             setBestMoveResult(data);
           }
           if (type === 'review-status') {

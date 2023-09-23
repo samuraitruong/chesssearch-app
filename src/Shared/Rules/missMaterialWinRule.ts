@@ -19,6 +19,18 @@ export function missMaterialWinRule(input: ReviewedMove) {
         playedMove.classification !== MoveClassification.blunder &&
         playedMove.bestmove !== best.bestmove
       ) {
+        // in this case, check if position is not worse, then classify as missed
+        if (
+          playedMove.bestLine.score.type === 'cp' &&
+          playedMove.bestLine.score.value >= 0
+        ) {
+          playedMove.classification = MoveClassification.miss;
+        }
+      }
+      if (
+        playedMove.classification !== MoveClassification.blunder &&
+        playedMove.bestmove !== best.bestmove
+      ) {
         playedMove.classification = MoveClassification.miss;
         best.bestLine.description =
           'You win material after all the good trades';
