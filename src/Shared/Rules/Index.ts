@@ -10,6 +10,7 @@ import { winMoreMaterialAfterTrade } from './winMoreMaterial';
 import { blunderQueenRule } from './blunderQueen';
 import { lostMaterialRule } from './lostMaterialRule';
 import { missMaterialWinRule } from './missMaterialWinRule';
+import { victoryMateRule } from './victoryMateRule';
 
 export function applyReviewRules(
   input: ReviewedMove,
@@ -17,6 +18,7 @@ export function applyReviewRules(
 ) {
   // rule will run by priority below
   return (
+    victoryMateRule(input) ||
     blunderQueenRule(input) ||
     continueMateRule(input, previousMove) ||
     forceCheckMateRule(input) ||

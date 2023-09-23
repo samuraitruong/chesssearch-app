@@ -98,7 +98,7 @@ function DisplayReviewedMoveOutput({
       </div>
       <div className="text-center w-full m-3">
         <button
-          className="rounded-sm text-sm bg-green-300 p-2 font-semibold hover:bg-blue-700 hover:text-white"
+          className="rounded-sm text-sm bg-green-400 p-2 font-semibold hover:bg-blue-700 hover:text-white"
           onClick={() => onShowMove(move)}
         >
           <BiSolidChess className="inline" />

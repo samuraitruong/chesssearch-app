@@ -11,15 +11,13 @@ const useStockfishOptions = (): [
   StockfishOptions,
   (options: StockfishOptions) => void
 ] => {
-  // Initialize the options from local storage or with default values
   const [options, setOptions] = useState<StockfishOptions>(() => {
     const storedOptions = localStorage.getItem('stockfishOptions');
     return storedOptions
       ? JSON.parse(storedOptions)
-      : { depth: 5, maxSearchTime: 1000, maxLines: 5 };
+      : { depth: 12, maxSearchTime: 3000, maxLines: 1 };
   });
 
-  // Update local storage whenever options change
   useEffect(() => {
     localStorage.setItem('stockfishOptions', JSON.stringify(options));
   }, [options]);

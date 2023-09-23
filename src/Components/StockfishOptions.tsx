@@ -15,10 +15,10 @@ const StockfishOptionsComponent: React.FC = () => {
   };
 
   return (
-    <div className="bg-white p-4 rounded shadow">
+    <div className="bg-white p-2 rounded shadow min-w-[300px] w-full">
       <h2 className="text-xl font-semibold mb-4">Stockfish Options</h2>
       <div className="mb-4">
-        <label className="block mb-2 font-medium">Depth Level</label>
+        <label className="block mb-2 font-medium">Depth</label>
         <input
           type="number"
           value={options.depth}

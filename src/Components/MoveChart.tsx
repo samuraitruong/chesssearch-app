@@ -45,7 +45,16 @@ export function MoveChart({ reviewData }: MoveChartProps) {
       color = payload.color;
       r = 3;
     }
-    return <circle cx={cx} cy={cy} r={r} fill={color} />;
+    return (
+      <circle
+        key={payload.index}
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill={color}
+        onClick={() => console.log('aaaa')}
+      />
+    );
   };
   const data = useMemo(() => {
     if (!reviewData) {

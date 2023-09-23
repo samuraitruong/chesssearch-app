@@ -21,6 +21,7 @@ import { HitCard } from './Components/HitCard';
 import { TableHit } from './Components/TableHit';
 import algoliasearch from 'algoliasearch';
 import { OpenPgn } from './Components/OpenPgn';
+import { Setting } from './Components/Setting';
 
 const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
   server: {
@@ -73,11 +74,12 @@ export default function App() {
       insights={false}
     >
       <Configure hitsPerPage={50} />
-      <header className="header-bg flex justify-center items-center min-height-[170px] p-2 bg-opacity-50 bg-white bg-contain pt-[150px]">
+      <header className="header-bg flex justify-center items-center min-height-[170px] p-2 bg-opacity-50 bg-white bg-contain pt-[150px] relative">
         <SearchBox
           placeholder="Search keywork (ie: Magnus vs Hiraku)"
           className="w-3/4 mb-8"
         />
+        <Setting />
       </header>
 
       <div className="flex w-full p-4">

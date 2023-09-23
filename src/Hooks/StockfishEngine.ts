@@ -158,10 +158,22 @@ export class StockfishEngine {
     this.data.lines = [...mates, ...normal];
 
     // analyse the best move line
-    this.data.bestLine = reviewMoveLine(
-      this.data.position || '',
-      this.data.lines[0]
-    );
+    if (this.data.bestmove !== '(none)') {
+      this.data.bestLine = reviewMoveLine(
+        this.data.position || '',
+        this.data.lines[0]
+      );
+    } else {
+      // checkmated
+      this.data.lines.push({
+        winChance: 0,
+        score: {
+          type: 'mate',
+          value: 0,
+        },
+        pv: '(none)',
+      } as any);
+    }
 
     const clonedData = { ...this.data };
     if (this.data) this.emitter('bestmove', clonedData);

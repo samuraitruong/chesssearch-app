@@ -21,13 +21,14 @@ import { simulateInitialGame } from '../Shared/Game';
 import { LineReview } from './LineReview';
 import MoveChart from './MoveChart';
 import { EloBar } from './EloBar';
-const SF_DEPTH = import.meta.env.VITE_SF_DEPTH || 18;
+import useStockfishOptions from '../Hooks/useStockfishOptions';
 
 interface GameViewerProps {
   data: GameData;
 }
 
 export function GameViewer({ data }: GameViewerProps) {
+  const [{ depth }] = useStockfishOptions();
   const lineRefs = useRef<any>([]);
   const [currentMove, setCurrentMove] = useState<ReviewedMove>();
   const [arrow, setArrow] = useState<Square[][]>([]);
@@ -65,8 +66,8 @@ export function GameViewer({ data }: GameViewerProps) {
   }, [reviewData]);
 
   useEffect(() => {
-    engine?.findBestMove(data.fen || data.LastPosition, SF_DEPTH);
-  }, [engine, data.LastPosition, data.fen]);
+    engine?.findBestMove(data.fen || data.LastPosition, depth);
+  }, [engine, data.LastPosition, data.fen, depth]);
 
   useEffect(() => {
     const item: ReviewedMove = moveList[currentMoveIndex];
@@ -84,7 +85,7 @@ export function GameViewer({ data }: GameViewerProps) {
       if (!isMute) {
         playSound(item);
       }
-      engine?.findBestMove(item.after, SF_DEPTH);
+      engine?.findBestMove(item.after, depth);
       if (item.best) {
         const bestmove: string = item.best?.bestmove || '';
         setArrow([
@@ -100,7 +101,7 @@ export function GameViewer({ data }: GameViewerProps) {
     if (currentMoveIndex >= moveList.length) {
       setIsPlaying(false);
     }
-  }, [currentMoveIndex, isMute, moveList]);
+  }, [currentMoveIndex, isMute, moveList, depth]);
 
   useEffect(() => {
     let intervalId: number = 0;
@@ -165,7 +166,7 @@ export function GameViewer({ data }: GameViewerProps) {
         }
         console.log(m);
         setArrow([[m.from, m.to]]);
-        engine?.findBestMove(m.after, SF_DEPTH);
+        engine?.findBestMove(m.after, depth);
         setFen(m.after);
       }, index * 1000);
       index++;
@@ -307,7 +308,7 @@ export function GameViewer({ data }: GameViewerProps) {
             </button>
 
             <button
-              onClick={() => engine?.reviewGame(moveList, SF_DEPTH)}
+              onClick={() => engine?.reviewGame(moveList, depth)}
               className="p-3 cursor-pointer"
             >
               <MdReviews />
