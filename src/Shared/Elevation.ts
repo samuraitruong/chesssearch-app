@@ -39,6 +39,7 @@ export function estimatePlayPerfomance(lines: StockfishLine[]) {
   const percentage = (avgCPChange + 400) / 800;
   const elo = percentage * (highestElo - lowestElo) + lowestElo;
   return +elo.toFixed(0);
+
   //   Average Evaluation around +1.00: Estimated Elo rating of about 2000+
   // Average Evaluation around +0.50: Estimated Elo rating of about 1800-2000
   // Average Evaluation around +0.00: Estimated Elo rating of about 1600-1800

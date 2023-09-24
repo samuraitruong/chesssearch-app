@@ -10,7 +10,7 @@ import { useStockfish } from '../Hooks/useStockfish';
 import useViewport from '../Hooks/useViewport';
 import ReviewLoading from './ReviewLoading';
 import ReviewSummary from './ReviewSummary';
-import { partitionListIntoPairs, findPiecePosition } from '../Shared/Utils';
+import { findPiecePosition } from '../Shared/Utils';
 import CapturedPieces from './CapturedPieces';
 import { playSound } from '../Shared/Media';
 import { CustomSquareRenderer } from './CustomSquareRenderer';
@@ -18,18 +18,19 @@ import { MoveClassification } from '../Shared/Constants';
 import { GameData, ReviewedMove, ReviewedMoveOutput } from '../Shared/Model';
 import EloSummary from './EloSummary';
 import { simulateInitialGame } from '../Shared/Game';
-import { LineReview } from './LineReview';
 import MoveChart from './MoveChart';
 import { EloBar } from './EloBar';
 import useStockfishOptions from '../Hooks/useStockfishOptions';
+import { MoveList } from './MoveList';
 
 interface GameViewerProps {
   data: GameData;
 }
 
 export function GameViewer({ data }: GameViewerProps) {
-  const [{ depth }] = useStockfishOptions();
   const lineRefs = useRef<any>([]);
+
+  const [{ depth }] = useStockfishOptions();
   const [currentMove, setCurrentMove] = useState<ReviewedMove>();
   const [arrow, setArrow] = useState<Square[][]>([]);
   const [moveList, setMoveList] = useState<ReviewedMove[]>([]);
@@ -189,12 +190,6 @@ export function GameViewer({ data }: GameViewerProps) {
       moveTo(indexOfMove);
     }
   };
-  const pairMoves = partitionListIntoPairs(moveList);
-
-  const getClassName = (m: ReviewedMove) => {
-    if (!m) return '';
-    return 'move-classification-' + m.playedMove?.classification || '';
-  };
 
   const memoCustomerRender = useMemo(
     () => CustomSquareRenderer(currentMove),
@@ -334,48 +329,14 @@ export function GameViewer({ data }: GameViewerProps) {
               {data.Result || data.result}
             </div>
           )}
-          {pairMoves?.map(([white, black], index) => (
-            <div key={index} ref={(ref) => (lineRefs.current[index] = ref)}>
-              <div
-                className="flex w-full items-center border-b border-dashed border-gray-300 mb-1"
-                key={index}
-                data-move-index={Math.round(index / 2)}
-              >
-                <span className="font-semibold text-right w-[25px] block mr-2">
-                  {index + 1}.
-                </span>
-                <a
-                  className={`font-semibold  cursor-pointer  pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
-                    index * 2 === currentMoveIndex
-                      ? 'bg-blue-500 font-medium text-white'
-                      : ''
-                  } ${getClassName(white)}`}
-                  onClick={() => moveTo(index * 2)}
-                >
-                  {white?.san}
-                  {/* |{' '}
-                {`${white.playedMove?.accuracy || ''} - ${
-                  white.best?.accuracy || ''
-                }`} */}
-                </a>
-                <a
-                  className={`font-semibold cursor-pointer pl-3 flex-1 hover:bg-slate-600 hover:text-white ${
-                    index * 2 + 1 === currentMoveIndex
-                      ? 'bg-blue-500 font-medium text-white'
-                      : ''
-                  } ${getClassName(black)}`}
-                  onClick={() => moveTo(index * 2 + 1)}
-                >
-                  {black?.san}
-                </a>
-              </div>
-              {(currentMoveIndex == index * 2 ||
-                index * 2 + 1 === currentMoveIndex) &&
-                currentMove?.playedMove?.bestLine && (
-                  <LineReview move={currentMove} onShowMove={onShowMove} />
-                )}
-            </div>
-          ))}
+          <MoveList
+            moveList={moveList}
+            currentMoveIndex={currentMoveIndex}
+            moveTo={moveTo}
+            currentMove={currentMove}
+            onShowMove={onShowMove}
+            lineRefs={lineRefs}
+          />
 
           {reviewData && reviewData.summary && (
             <EloSummary data={reviewData.summary} />

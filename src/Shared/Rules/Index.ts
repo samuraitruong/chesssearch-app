@@ -19,9 +19,9 @@ export function applyReviewRules(
   // rule will run by priority below
   return (
     victoryMateRule(input) ||
-    blunderQueenRule(input) ||
     continueMateRule(input, previousMove) ||
     forceCheckMateRule(input) ||
+    blunderQueenRule(input) ||
     missMateRule(input) ||
     missMaterialWinRule(input) ||
     hugeMaterialMiss(input) ||
