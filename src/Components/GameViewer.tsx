@@ -22,6 +22,7 @@ import MoveChart from './MoveChart';
 import { EloBar } from './EloBar';
 import useStockfishOptions from '../Hooks/useStockfishOptions';
 import { ReviewPanel } from './ReviewPanel';
+import useSetting from '../Hooks/useSettings';
 
 interface GameViewerProps {
   data: GameData;
@@ -29,7 +30,7 @@ interface GameViewerProps {
 
 export function GameViewer({ data }: GameViewerProps) {
   const lineRefs = useRef<any>([]);
-
+  const { settings, setSetting } = useSetting({ isMute: true });
   const [{ depth }] = useStockfishOptions();
   const [currentMove, setCurrentMove] = useState<ReviewedMove>();
   const [arrow, setArrow] = useState<Square[][]>([]);
@@ -41,7 +42,6 @@ export function GameViewer({ data }: GameViewerProps) {
   );
   const [fen, setFen] = useState(data.fen || data.LastPosition);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMute, setMute] = useState(false);
   const boardSize = useMemo(
     () => Math.min(height - 300, width - 400),
     [width, height]
@@ -83,7 +83,7 @@ export function GameViewer({ data }: GameViewerProps) {
       if (rect.y > height - 200) {
         itemRef.scrollIntoView();
       }
-      if (!isMute) {
+      if (!settings.isMute) {
         playSound(item);
       }
       engine?.findBestMove(item.after, depth);
@@ -102,7 +102,8 @@ export function GameViewer({ data }: GameViewerProps) {
     if (currentMoveIndex >= moveList.length) {
       setIsPlaying(false);
     }
-  }, [currentMoveIndex, isMute, moveList, depth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMoveIndex, moveList, depth, settings]);
 
   useEffect(() => {
     let intervalId: number = 0;
@@ -117,7 +118,7 @@ export function GameViewer({ data }: GameViewerProps) {
           clearInterval(intervalId);
           setIsPlaying(false);
         }
-      }, 1000);
+      }, settings.delay);
     } else {
       if (intervalId) clearInterval(intervalId);
     }
@@ -125,7 +126,7 @@ export function GameViewer({ data }: GameViewerProps) {
     return () => {
       clearInterval(intervalId);
     };
-  }, [isPlaying, moveList.length, currentMoveIndex]);
+  }, [isPlaying, moveList.length, currentMoveIndex, settings.delay]);
 
   useEffect(() => {
     const lines = simulateInitialGame(data.Moves) as ReviewedMove[];
@@ -156,13 +157,13 @@ export function GameViewer({ data }: GameViewerProps) {
     setIsPlaying(!isPlaying);
   };
   const toggleSpeaker = () => {
-    setMute(!isMute);
+    setSetting('isMute', !settings.isMute);
   };
   const onShowMove = (rMove: ReviewedMoveOutput) => {
     let index = 1;
     for (const m of rMove.bestLine?.moves || []) {
       setTimeout(() => {
-        if (!isMute) {
+        if (!settings.isMute) {
           playSound(m);
         }
         console.log(m);
@@ -292,7 +293,7 @@ export function GameViewer({ data }: GameViewerProps) {
               onClick={toggleSpeaker}
               className="ml-10 p-3 cursor-pointer"
             >
-              {isMute ? (
+              {settings.isMute ? (
                 <PiSpeakerX color="red" />
               ) : (
                 <PiSpeakerHigh color="green" />

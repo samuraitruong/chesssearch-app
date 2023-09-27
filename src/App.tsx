@@ -9,6 +9,7 @@ import {
   InstantSearch,
   Pagination,
   SearchBox,
+  PoweredBy,
 } from 'react-instantsearch';
 
 import './App.css';
@@ -149,8 +150,9 @@ export default function App() {
 
         <div className="w-9/12 lg:w-10/12">
           <div className="flex w-full justify-between">
-            <div className="w-1/2">
-              <Stats className="mb-3" />
+            <div className="w-3/4 flex ">
+              <Stats className="mb-3 mr-10" />
+              {algoliaSearchClient && <PoweredBy />}
             </div>
 
             <div className="w-1/2 justify-end flex">
