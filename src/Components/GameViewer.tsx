@@ -21,7 +21,7 @@ import { simulateInitialGame } from '../Shared/Game';
 import MoveChart from './MoveChart';
 import { EloBar } from './EloBar';
 import useStockfishOptions from '../Hooks/useStockfishOptions';
-import { MoveList } from './MoveList';
+import { ReviewPanel } from './ReviewPanel';
 
 interface GameViewerProps {
   data: GameData;
@@ -329,7 +329,7 @@ export function GameViewer({ data }: GameViewerProps) {
               {data.Result || data.result}
             </div>
           )}
-          <MoveList
+          <ReviewPanel
             moveList={moveList}
             currentMoveIndex={currentMoveIndex}
             moveTo={moveTo}
