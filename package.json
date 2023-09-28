@@ -8,10 +8,13 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "app-dev": "pnpm tauri dev",
+    "app-build": "pnpm tauri build"
   },
   "dependencies": {
     "@idui/react-popover": "^3.1.0",
+    "@tauri-apps/api": "^1.4.0",
     "@types/lodash": "^4.14.198",
     "@types/tiny-async-pool": "^2.0.0",
     "algoliasearch": "4",
@@ -37,6 +40,7 @@
     "vite-plugin-pwa": "^0.16.5"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^1.4.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
