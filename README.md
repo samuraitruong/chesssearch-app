@@ -21,6 +21,10 @@ _You can replace by yarn or npm if prefer._
 
 <img width="1501" alt="image" src="https://github.com/samuraitruong/chesssearch-app/assets/1183138/052479c8-c0b6-45f5-ab34-346ef09303bc">
 
+### Game Viewer(PGN Viewer)
+
+<img width="1505" alt="image" src="https://github.com/samuraitruong/chesssearch-app/assets/1183138/0a002db3-eb6f-4116-8ada-ff91834e5bcb">
+
 
 
 ## Expanding the ESLint configuration
