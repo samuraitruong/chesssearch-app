@@ -15,6 +15,14 @@ pnpm run dev
 
 _You can replace by yarn or npm if prefer._
 
+
+## Design
+### Home screen
+
+<img width="1501" alt="image" src="https://github.com/samuraitruong/chesssearch-app/assets/1183138/052479c8-c0b6-45f5-ab34-346ef09303bc">
+
+
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
