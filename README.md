@@ -1,9 +1,7 @@
-# React Chessgame viewer
+# Introduction
 
-The simple react app to view chess games with Reviewi & Analyser mode
+In this ambitious endeavor, our goal is to craft a cutting-edge chess game viewer that immerses users in the rich tapestry of chess history. With a harmonious blend of sleek modern design and state-of-the-art technologies, we aim to offer an unparalleled user experience. Our vision is to transform this platform into an engaging and enlightening educational tool, seamlessly weaving the intricate threads of the chess world into the fabric of our website.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
 ## Get started
 
