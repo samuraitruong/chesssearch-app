@@ -37,6 +37,9 @@ _You can replace by yarn or npm if prefer._
 
 <img width="1499" alt="image" src="https://github.com/samuraitruongau/chesssearch-app/assets/56257669/d6039eed-99a0-4d08-924f-fab73accf993">
 
+### Setting Window
+
+![Uploading image.png…]()
 
 ## Data Structure
 ### Algoria
