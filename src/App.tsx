@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import TypesenseInstantSearchAdapter from 'typesense-instantsearch-adapter';
 import {
   Configure,
@@ -24,46 +24,62 @@ import algoliasearch from 'algoliasearch';
 import { OpenPgn } from './Components/OpenPgn';
 import { Setting } from './Components/Setting';
 
-const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
-  server: {
-    apiKey: import.meta.env.VITE_TYPESENSE_API || 'xyz', // Be sure to use an API key that only allows search operations
-    nodes: [
-      {
-        host: import.meta.env.VITE_TYPESENSE_HOST || 'localhost',
-        port: parseInt(import.meta.env.VITE_TYPESENSE_PORT || '8108'),
-        path: '', // Optional. Example: If you have your typesense mounted in localhost:8108/typesense, path should be equal to '/typesense'
-        protocol: import.meta.env.VITE_TYPESENSE_PROTOCOL || 'http',
-      },
-    ],
-    cacheSearchResultsForSeconds: 1 * 60, // Cache search results from server. Defaults to 2 minutes. Set to 0 to disable caching.
-  },
-  additionalSearchParameters: {
-    query_by: 'Game,embedding,White,Black',
-    exclude_fields: 'embedding',
-  },
-});
-
-const algoliaSearchClient = import.meta.env.VITE_ALGOLIA_APP_ID
-  ? algoliasearch(
-      import.meta.env.VITE_ALGOLIA_APP_ID,
-      import.meta.env.VITE_ALGOLIA_KEY
-    )
-  : undefined;
-
-const searchClient =
-  algoliaSearchClient || typesenseInstantsearchAdapter.searchClient;
-
 export default function App() {
+  const { searchClient, isAlgolia, indexName } = useMemo(() => {
+    const typesenseInstantsearchAdapter = new TypesenseInstantSearchAdapter({
+      server: {
+        apiKey: import.meta.env.VITE_TYPESENSE_API || 'xyz', // Be sure to use an API key that only allows search operations
+        nodes: [
+          {
+            host: import.meta.env.VITE_TYPESENSE_HOST || 'localhost',
+            port: parseInt(import.meta.env.VITE_TYPESENSE_PORT || '8108'),
+            path: '', // Optional. Example: If you have your typesense mounted in localhost:8108/typesense, path should be equal to '/typesense'
+            protocol: import.meta.env.VITE_TYPESENSE_PROTOCOL || 'http',
+          },
+        ],
+        cacheSearchResultsForSeconds: 1 * 60, // Cache search results from server. Defaults to 2 minutes. Set to 0 to disable caching.
+      },
+      additionalSearchParameters: {
+        query_by: 'Game,embedding,White,Black',
+        exclude_fields: 'embedding',
+      },
+    });
+    const algolia_app_ids = (import.meta.env.VITE_ALGOLIA_APP_ID || '')
+      .split(',')
+      .filter(Boolean);
+    const algolia_api_keys = (import.meta.env.VITE_ALGOLIA_KEY || '')
+      .split(',')
+      .filter(Boolean);
+    const algolia_games = (import.meta.env.VITE_ALGOLIA_INDEX || '')
+      .split(',')
+      .filter(Boolean);
+    const rndIdx = Math.floor(Math.random() * algolia_app_ids.length);
+    console.log('rndIdx', rndIdx);
+    const algoliaSearchClient =
+      algolia_app_ids.length > 0
+        ? algoliasearch(algolia_app_ids[rndIdx], algolia_api_keys[rndIdx])
+        : undefined;
+
+    const searchClient =
+      algoliaSearchClient || typesenseInstantsearchAdapter.searchClient;
+
+    return {
+      searchClient,
+      isAlgolia: algoliaSearchClient !== undefined,
+      indexName:
+        algolia_games[rndIdx] ||
+        import.meta.env.VITE_INDEX_NAME ||
+        'chessgames',
+    };
+  }, []);
+
   const [game, setGame] = useState<any>();
   const [displayMode, setDisplayMode] = useState<string>('card');
 
   const handleHitClick = (item: any) => {
     setGame(item);
   };
-  const indexName =
-    import.meta.env.VITE_ALGOLIA_INDEX ||
-    import.meta.env.VITE_INDEX_NAME ||
-    'chessgames';
+
   const handleModeChange = (type: string) => {
     setDisplayMode(type);
   };
@@ -152,7 +168,7 @@ export default function App() {
           <div className="flex w-full justify-between">
             <div className="w-3/4 flex ">
               <Stats className="mb-3 mr-10" />
-              {algoliaSearchClient && <PoweredBy />}
+              {isAlgolia && <PoweredBy />}
             </div>
 
             <div className="w-1/2 justify-end flex">
