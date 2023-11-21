@@ -11,7 +11,11 @@ type HitProps = {
 
 export function HitCard({ hit, onHitClick }: HitProps) {
   return (
-    <div className="flex flex-col w-full" onClick={() => onHitClick(hit)}>
+    <div
+      className="flex flex-col w-full"
+      data-testId="game-hit-card"
+      onClick={() => onHitClick(hit)}
+    >
       <div className=" flex items-center w-full] align-middle justify-around mb-2">
         <div className="w-[100px]">
           <MiniBoard position={hit.LastPosition || hit.fen} />
