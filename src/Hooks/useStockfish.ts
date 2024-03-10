@@ -30,8 +30,8 @@ export function useStockfish() {
           if (type === 'move-update') {
             // setReviewStatus(data);
             const lines = data.lines;
-            const mateMoves = lines.filter((x) => x.score.type === 'mate');
-            const cpMoves = lines.filter((x) => x.score.type === 'cp');
+            const mateMoves = lines.filter((x: any) => x.score.type === 'mate');
+            const cpMoves = lines.filter((x: any) => x.score.type === 'cp');
             sortBy(mateMoves, (x) => x.score.value);
             sortBy(cpMoves, (x) => x.score.value, 'desc');
             const bestLines = [...mateMoves, ...cpMoves]; //.splice(0, 5);
