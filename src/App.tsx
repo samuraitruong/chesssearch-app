@@ -91,16 +91,16 @@ export default function App() {
       insights={false}
     >
       <Configure hitsPerPage={50} />
-      <header className="header-bg flex justify-center items-center min-height-[170px] p-2 bg-opacity-50 bg-white bg-contain pt-[150px] relative">
+      <header className="h-[100px] sm:h-auto min-height-[90px] pt-[0px] header-bg flex justify-center items-center sm:min-height-[170px] p-2 bg-opacity-50 bg-white bg-contain sm:pt-[150px] relative">
         <SearchBox
           placeholder="Search keywork (ie: Magnus vs Hiraku)"
-          className="w-3/4 mb-8"
+          className="absolute sm:relative w-full sm:w-3/4 mb-8 top-[20px]"
         />
         <Setting />
       </header>
 
-      <div className="flex w-full p-4">
-        <div className="w-3/12 pr-2 lg:w-2/12">
+      <div className="flex w-full p-4 flex-col sm:flex-row">
+        <div className="w-full sm:w-3/12 pr-2 lg:w-2/12">
           <div className="" data-layout="desktop">
             <ClearRefinements />
           </div>
@@ -164,9 +164,9 @@ export default function App() {
           </Panel>
         </div>
 
-        <div className="w-9/12 lg:w-10/12">
+        <div className="w-full sm:w-9/12 lg:w-10/12">
           <div className="flex w-full justify-between">
-            <div className="w-3/4 flex ">
+            <div className="w-full sm:w-3/4 flex ">
               <Stats className="mb-3 mr-10" />
               {isAlgolia && <PoweredBy />}
             </div>

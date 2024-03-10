@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StockfishEngine } from './StockfishEngine';
 import { ReviewStatus, GameReview } from '../Shared/Model';
+import sortBy from 'lodash/sortBy';
 
 export function useStockfish() {
   const [bestMoveResult, setBestMoveResult] = useState<any>();
@@ -24,6 +25,17 @@ export function useStockfish() {
           }
           if (type === 'review-status') {
             setReviewStatus(data);
+          }
+
+          if (type === 'move-update') {
+            // setReviewStatus(data);
+            const lines = data.lines;
+            const mateMoves = lines.filter((x) => x.score.type === 'mate');
+            const cpMoves = lines.filter((x) => x.score.type === 'cp');
+            sortBy(mateMoves, (x) => x.score.value);
+            sortBy(cpMoves, (x) => x.score.value, 'desc');
+            const bestLines = [...mateMoves, ...cpMoves]; //.splice(0, 5);
+            console.log(bestLines);
           }
         })
       );

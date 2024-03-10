@@ -20,7 +20,7 @@ export function Modal({ children, onClose }: ModalProps) {
     <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="relative p-7 rounded-lg shadow-lg bg-white">
         <a
-          className="close-button absolute top-3 right-3 text-lg cursor-pointer hover:text-red-500"
+          className="close-button fixed sm:absolute top-5 right-5 sm:top-3 sm:right-3 text-lg cursor-pointer hover:text-red-500"
           onClick={handleClose}
         >
           <AiOutlineClose />

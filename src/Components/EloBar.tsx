@@ -39,7 +39,10 @@ export function EloBar({ bestMoveResult, height }: EloBarProps) {
   }, [bestMoveResult]);
 
   return (
-    <div className="elo-bar my-10 relative" style={{ height }}>
+    <div
+      className="elo-bar my-10 sm:relative  absolute w-[29px] left-1"
+      style={{ height }}
+    >
       <div className="absolute text-xs w-full pt-1 text-white text-center">
         {eloText}
       </div>

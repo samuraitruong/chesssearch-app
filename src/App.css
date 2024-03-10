@@ -1,3 +1,8 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
 body,
 h1 {
   margin: 0;
@@ -30,7 +35,7 @@ em {
   cursor: pointer;
 }
 .hits_card .ais-Hits-item{
-  width: 33.33%;
+  width: 50%;
   float: left;
 }
 .ais-Hits-table .ais-Hits-item{
@@ -112,4 +117,14 @@ em {
   opacity: 0.5;
   margin-top: -5px;
   font-size: 10px;
+}
+
+
+@media (min-width: theme('screens.sm')) {
+  /* Your styles for sm breakpoint and above */
+
+  .hits_card .ais-Hits-item{
+    width: 33.33%;
+    float: left;
+  }
 }

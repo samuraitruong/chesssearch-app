@@ -42,10 +42,12 @@ export function GameViewer({ data }: GameViewerProps) {
   );
   const [fen, setFen] = useState(data.fen || data.LastPosition);
   const [isPlaying, setIsPlaying] = useState(false);
-  const boardSize = useMemo(
-    () => Math.min(height - 300, width - 400),
-    [width, height]
-  );
+  const boardSize = useMemo(() => {
+    if (width >= 640) {
+      return Math.min(height - 300, width - 400);
+    }
+    return width - 50;
+  }, [width, height]);
 
   const moveTo = useCallback(
     (index: number) => {
@@ -216,16 +218,18 @@ export function GameViewer({ data }: GameViewerProps) {
   }, [currentMove]);
 
   return (
-    <div>
-      <div className="pt-1 text-center font-semibold">
-        {data.Event} - {data.Site} - {data.Year || data.year}
+    <div className="flex flex-col pt-[230px] sm:pt-0">
+      <div>
+        <div className="pt-1 text-center font-semibold">
+          {data.Event} - {data.Site} - {data.Year || data.year}
+        </div>
+        <div className="pt-1 text-center">{data.ECO}</div>
       </div>
-      <div className="pt-1 text-center">{data.ECO}</div>
 
-      <div className="flex">
+      <div className="flex flex-col sm:flex-row">
         <EloBar bestMoveResult={bestMoveResult} height={boardSize} />
 
-        <div className="flex flex-col">
+        <div className="">
           <div
             className="text-xs font-semibold justify-center height-[38px]"
             style={{ height: 40 }}
@@ -263,7 +267,7 @@ export function GameViewer({ data }: GameViewerProps) {
             />
           </div>
 
-          <div className="flex w-full justify-center mt-3 items-center ">
+          <div className="flex w-full justify-between sm:justify-center mt-3 items-center ">
             <button onClick={() => moveTo(0)} className="p-3 cursor-pointer">
               <LuChevronFirst />
             </button>

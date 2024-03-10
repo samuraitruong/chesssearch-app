@@ -25,7 +25,7 @@ export class StockfishEngine {
   private isTerminated = false;
   constructor(
     private emitter: (
-      type: 'review' | 'bestmove' | 'review-status',
+      type: 'review' | 'bestmove' | 'review-status' | 'move-update',
       data: any
     ) => void
   ) {
@@ -141,6 +141,7 @@ export class StockfishEngine {
     }
 
     this.data.lines.push(result);
+    this.emitter('move-update', { ...this.data });
     return result;
   }
 
